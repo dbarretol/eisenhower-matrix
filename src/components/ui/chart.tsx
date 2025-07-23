@@ -112,51 +112,51 @@ const ChartTooltipContent = React.forwardRef<
     }
 >(
     (
-        {
-            active,
-            payload,
-            className,
-            indicator = "dot",
-            hideLabel = false,
-            hideIndicator = false,
-            label,
-            labelFormatter,
-            labelClassName,
-            formatter,
-            color,
-            nameKey,
-            labelKey,
-        },
+        props,
         ref
     ) => {
+        // Destructure with defaults and type safety
+        // Use safe access for props that may not exist
+        const active = props.active;
+        const payload = (props as any).payload ?? [];
+        const className = props.className;
+        const indicator = (props as any).indicator ?? "dot";
+        const hideLabel = (props as any).hideLabel ?? false;
+        const hideIndicator = (props as any).hideIndicator ?? false;
+        const label = (props as any).label;
+        const labelFormatter = (props as any).labelFormatter;
+        const labelClassName = (props as any).labelClassName;
+        const formatter = (props as any).formatter;
+        const color = (props as any).color;
+        const nameKey = (props as any).nameKey;
+        const labelKey = (props as any).labelKey;
         const { config } = useChart()
 
         const tooltipLabel = React.useMemo(() => {
-            if (hideLabel || !payload?.length) {
-                return null
+            if (hideLabel || !payload || !Array.isArray(payload) || payload.length === 0) {
+                return null;
             }
-
-            const [item] = payload
-            const key = `${labelKey || item.dataKey || item.name || "value"}`
-            const itemConfig = getPayloadConfigFromPayload(config, item, key)
+            const [item] = payload;
+            // Defensive: item may be undefined or not an object
+            const dataKey = typeof item === "object" && item !== null && "dataKey" in item ? (item as any).dataKey : undefined;
+            const name = typeof item === "object" && item !== null && "name" in item ? (item as any).name : undefined;
+            const key = `${labelKey || dataKey || name || "value"}`;
+            const itemConfig = getPayloadConfigFromPayload(config, item, key);
             const value =
                 !labelKey && typeof label === "string"
                     ? config[label as keyof typeof config]?.label || label
-                    : itemConfig?.label
-
+                    : itemConfig?.label;
             if (labelFormatter) {
                 return (
                     <div className={cn("font-medium", labelClassName)}>
                         {labelFormatter(value, payload)}
                     </div>
-                )
+                );
             }
-
             if (!value) {
-                return null
+                return null;
             }
-
-            return <div className={cn("font-medium", labelClassName)}>{value}</div>
+            return <div className={cn("font-medium", labelClassName)}>{value}</div>;
         }, [
             label,
             labelFormatter,
@@ -165,13 +165,13 @@ const ChartTooltipContent = React.forwardRef<
             labelClassName,
             config,
             labelKey,
-        ])
+        ]);
 
-        if (!active || !payload?.length) {
-            return null
+        if (!active || !payload || !Array.isArray(payload) || payload.length === 0) {
+            return null;
         }
 
-        const nestLabel = payload.length === 1 && indicator !== "dot"
+        const nestLabel = Array.isArray(payload) && payload.length === 1 && indicator !== "dot";
 
         return (
             <div
@@ -184,20 +184,26 @@ const ChartTooltipContent = React.forwardRef<
                 {!nestLabel ? tooltipLabel : null}
                 <div className="grid gap-1.5">
                     {payload.map((item, index) => {
-                        const key = `${nameKey || item.name || item.dataKey || "value"}`
-                        const itemConfig = getPayloadConfigFromPayload(config, item, key)
-                        const indicatorColor = color || item.payload.fill || item.color
-
+                        // Defensive: item may be undefined or not an object
+                        const dataKey = typeof item === "object" && item !== null && "dataKey" in item ? (item as any).dataKey : undefined;
+                        const name = typeof item === "object" && item !== null && "name" in item ? (item as any).name : undefined;
+                        const value = typeof item === "object" && item !== null && "value" in item ? (item as any).value : undefined;
+                        const itemPayload = typeof item === "object" && item !== null && "payload" in item ? (item as any).payload : undefined;
+                        const key = `${nameKey || name || dataKey || "value"}`;
+                        const itemConfig = getPayloadConfigFromPayload(config, item, key);
+                        const indicatorColor = color || (itemPayload && itemPayload.fill) || (item as any).color;
+                        // Unique key for React
+                        const uniqueKey = `${dataKey ?? ""}_${name ?? ""}_${value ?? index}`;
                         return (
                             <div
-                                key={item.dataKey}
+                                key={uniqueKey}
                                 className={cn(
                                     "flex w-full flex-wrap items-stretch gap-2 [&>svg]:h-2.5 [&>svg]:w-2.5 [&>svg]:text-muted-foreground",
                                     indicator === "dot" && "items-center"
                                 )}
                             >
-                                {formatter && item?.value !== undefined && item.name ? (
-                                    formatter(item.value, item.name, item, index, item.payload)
+                                {formatter && value !== undefined && name ? (
+                                    formatter(value, name, item, index, itemPayload)
                                 ) : (
                                     <>
                                         {itemConfig?.icon ? (
@@ -233,23 +239,23 @@ const ChartTooltipContent = React.forwardRef<
                                             <div className="grid gap-1.5">
                                                 {nestLabel ? tooltipLabel : null}
                                                 <span className="text-muted-foreground">
-                                                    {itemConfig?.label || item.name}
+                                                    {itemConfig?.label || name}
                                                 </span>
                                             </div>
-                                            {item.value && (
+                                            {value !== undefined && value !== null ? (
                                                 <span className="font-mono font-medium tabular-nums text-foreground">
-                                                    {item.value.toLocaleString()}
+                                                    {typeof value === "number" ? value.toLocaleString() : value}
                                                 </span>
-                                            )}
+                                            ) : null}
                                         </div>
                                     </>
                                 )}
                             </div>
-                        )
+                        );
                     })}
                 </div>
             </div>
-        )
+        );
     }
 )
 ChartTooltipContent.displayName = "ChartTooltip"
@@ -258,10 +264,11 @@ const ChartLegend = RechartsPrimitive.Legend
 
 const ChartLegendContent = React.forwardRef<
     HTMLDivElement,
-    React.ComponentProps<"div"> &
-    Pick<RechartsPrimitive.LegendProps, "payload" | "verticalAlign"> & {
-        hideIcon?: boolean
-        nameKey?: string
+    React.ComponentProps<"div"> & {
+        payload?: any[];
+        verticalAlign?: "top" | "bottom";
+        hideIcon?: boolean;
+        nameKey?: string;
     }
 >(
     (
@@ -284,12 +291,17 @@ const ChartLegendContent = React.forwardRef<
                 )}
             >
                 {payload.map((item) => {
-                    const key = `${nameKey || item.dataKey || "value"}`
-                    const itemConfig = getPayloadConfigFromPayload(config, item, key)
-
+                    const key = `${nameKey || item.dataKey || item.name || "value"}`;
+                    const itemConfig = getPayloadConfigFromPayload(config, item, key);
+                    // Unique key: prefer dataKey + value, fallback to value + name
+                    const legendKey = `${item.dataKey ?? ""}_${item.value ?? item.name ?? ""}`;
+                    // Color fallback: item.color, item.payload?.fill, or undefined
+                    const color = item.color ?? (item.payload && item.payload.fill) ?? undefined;
+                    // Label fallback: config label, item.value, item.name
+                    const label = itemConfig?.label ?? item.value ?? item.name;
                     return (
                         <div
-                            key={item.value}
+                            key={legendKey}
                             className={cn(
                                 "flex items-center gap-1.5 [&>svg]:h-3 [&>svg]:w-3 [&>svg]:text-muted-foreground"
                             )}
@@ -300,13 +312,13 @@ const ChartLegendContent = React.forwardRef<
                                 <div
                                     className="h-2 w-2 shrink-0 rounded-[2px]"
                                     style={{
-                                        backgroundColor: item.color,
+                                        backgroundColor: color,
                                     }}
                                 />
                             )}
-                            {itemConfig?.label}
+                            {label}
                         </div>
-                    )
+                    );
                 })}
             </div>
         )

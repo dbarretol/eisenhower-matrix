@@ -45,14 +45,14 @@
     --matrix-green: 120 100% 50%;
     --matrix-green-glow: 120 100% 50%;
     --matrix-green-dim: 120 70% 25%;
-    
+
     /* Gradients */
     --gradient-matrix: linear-gradient(135deg, hsl(200 20% 4%), hsl(200 15% 8%));
     --gradient-urgent-important: linear-gradient(135deg, hsl(0 70% 25%), hsl(0 60% 20%));
     --gradient-important: linear-gradient(135deg, hsl(120 70% 25%), hsl(120 60% 20%));
     --gradient-urgent: linear-gradient(135deg, hsl(45 70% 25%), hsl(45 60% 20%));
     --gradient-neither: linear-gradient(135deg, hsl(200 20% 15%), hsl(200 15% 12%));
-    
+
     /* Shadows and Effects */
     --shadow-matrix: 0 0 20px hsl(120 100% 50% / 0.3);
     --shadow-glow: 0 0 40px hsl(120 100% 50% / 0.2);
@@ -120,25 +120,13 @@
   }
 }
 
-/* @layer base {
+@layer base {
   * {
-    @apply border-border;
-  }
-
-  body {
-    @apply bg-background text-foreground;
-  }
-} */
- @layer utilities {
-  .border-border {
     border-color: hsl(var(--border));
   }
 
-  .bg-background {
+  body {
     background-color: hsl(var(--background));
-  }
-
-  .text-foreground {
     color: hsl(var(--foreground));
   }
 }

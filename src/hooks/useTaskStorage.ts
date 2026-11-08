@@ -1,16 +1,9 @@
 import { useState, useEffect } from 'react';
-import { Task } from '@/types/task';
+import type { ContainerId, Task } from '@/types/task';
+import { isContainerId } from '@/lib/quadrants';
 
 const STORAGE_KEY = 'eisenhower-matrix-tasks';
 const BACKUP_KEY = `${STORAGE_KEY}-corrupted-backup`;
-
-const QUADRANTS: ReadonlySet<Task['quadrant']> = new Set([
-    'unassigned',
-    'urgent_important',
-    'important',
-    'urgent',
-    'neither',
-]);
 
 // Keeps only well-formed tasks so corrupted or outdated data can't break the app.
 const sanitizeTasks = (value: unknown): Task[] => {
@@ -24,9 +17,7 @@ const sanitizeTasks = (value: unknown): Task[] => {
         return [{
             id,
             text,
-            quadrant: QUADRANTS.has(quadrant as Task['quadrant'])
-                ? (quadrant as Task['quadrant'])
-                : 'unassigned',
+            quadrant: isContainerId(quadrant) ? quadrant : 'unassigned',
             completed: completed === true,
             createdAt: typeof createdAt === 'string' ? createdAt : new Date().toISOString(),
         }];
@@ -88,7 +79,7 @@ export const useTaskStorage = () => {
 
     // Moves a task to a quadrant. If `beforeTaskId` is given, the task is placed right
     // before it; otherwise it goes to the end. Order within a quadrant follows array order.
-    const moveTask = (taskId: string, newQuadrant: Task['quadrant'], beforeTaskId?: string) => {
+    const moveTask = (taskId: string, newQuadrant: ContainerId, beforeTaskId?: string) => {
         setTasks(prev => {
             const task = prev.find(t => t.id === taskId);
             if (!task) return prev;

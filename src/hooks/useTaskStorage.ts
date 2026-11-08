@@ -28,14 +28,17 @@ export const loadTasks = (): Task[] => {
 
 export const useTaskStorage = () => {
     const [tasks, setTasks] = useState<Task[]>(loadTasks);
+    // While a task is dragged it moves between lists many times; save once it's dropped.
+    const [savingPaused, setSavingPaused] = useState(false);
 
     useEffect(() => {
+        if (savingPaused) return;
         try {
             localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
         } catch (error) {
             console.error('Error saving tasks:', error);
         }
-    }, [tasks]);
+    }, [tasks, savingPaused]);
 
     const addTask = (text: string) => {
         if (text.trim() === '') return;
@@ -67,6 +70,7 @@ export const useTaskStorage = () => {
     return {
         tasks,
         setTasks,
+        setSavingPaused,
         addTask,
         updateTask,
         deleteTask,

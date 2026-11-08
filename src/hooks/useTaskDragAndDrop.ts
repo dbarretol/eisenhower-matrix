@@ -20,10 +20,12 @@ interface Options {
     setTasks: Dispatch<SetStateAction<Task[]>>;
     moveTask: (taskId: string, quadrant: ContainerId, beforeTaskId?: string) => void;
     reorderTask: (taskId: string, overTaskId: string) => void;
+    /** Called with `true` when a drag starts and `false` when it ends. */
+    setSavingPaused: (paused: boolean) => void;
 }
 
 /** Drag-and-drop state, sensors, event handlers and screen reader announcements. */
-export const useTaskDragAndDrop = ({ tasks, setTasks, moveTask, reorderTask }: Options) => {
+export const useTaskDragAndDrop = ({ tasks, setTasks, moveTask, reorderTask, setSavingPaused }: Options) => {
     const [activeTaskId, setActiveTaskId] = useState<string | null>(null);
     const [dragOverContainer, setDragOverContainer] = useState<ContainerId | null>(null);
     // Tasks as they were before the drag started, restored if the drag is cancelled.
@@ -46,6 +48,7 @@ export const useTaskDragAndDrop = ({ tasks, setTasks, moveTask, reorderTask }: O
         setActiveTaskId(null);
         setDragOverContainer(null);
         dragSnapshot.current = null;
+        setSavingPaused(false);
     };
 
     const onDragStart = ({ active }: DragStartEvent) => {
@@ -53,6 +56,7 @@ export const useTaskDragAndDrop = ({ tasks, setTasks, moveTask, reorderTask }: O
         if (!task) return;
         setActiveTaskId(task.id);
         dragSnapshot.current = tasks;
+        setSavingPaused(true);
     };
 
     // Moves the task into another list while dragging so the lists can make room for it.

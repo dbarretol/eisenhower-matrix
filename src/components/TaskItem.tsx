@@ -44,14 +44,14 @@ export const TaskItem = ({
             ref={ref}
             data-task-card
             className={cn(
-                "group relative flex items-start gap-2.5 rounded-card border border-line bg-card py-2.5 pr-2 pl-3",
-                "shadow-card cursor-grab touch-none select-none",
-                "transition-[border-color,box-shadow] duration-150",
-                "hover:border-muted/60",
+                "group relative flex items-start gap-2.5 rounded-card border bg-card py-2.5 pr-2 pl-3",
+                "touch-none select-none transition-[border-color,box-shadow] duration-150",
+                isOverlay
+                    ? "cursor-grabbing border-ink shadow-lift"
+                    : "cursor-grab border-line shadow-card hover:border-muted/60",
                 // The handle is invisible, so the whole card shows its keyboard focus.
                 "has-[[data-drag-handle]:focus-visible]:outline-2 has-[[data-drag-handle]:focus-visible]:outline-offset-2 has-[[data-drag-handle]:focus-visible]:outline-ink",
                 isDragging && "task-slot",
-                isOverlay && "cursor-grabbing border-ink shadow-lift",
                 className
             )}
             {...props}
@@ -94,11 +94,10 @@ export const TaskItem = ({
                 }}
                 aria-label={`Delete “${task.text}”`}
                 className={cn(
-                    "-my-1 grid size-7 shrink-0 place-items-center rounded-md text-muted",
-                    "opacity-0 transition-opacity duration-150 group-hover:opacity-100 focus-visible:opacity-100",
-                    "[@media(hover:none)]:opacity-100",
+                    "-my-1 grid size-7 shrink-0 place-items-center rounded-md text-muted opacity-0 transition-opacity duration-150",
                     "hover:bg-danger/10 hover:text-danger",
-                    isOverlay && "opacity-0 group-hover:opacity-0"
+                    // The floating copy never shows the delete button.
+                    !isOverlay && "group-hover:opacity-100 focus-visible:opacity-100 [@media(hover:none)]:opacity-100"
                 )}
             >
                 <X className="size-4" />

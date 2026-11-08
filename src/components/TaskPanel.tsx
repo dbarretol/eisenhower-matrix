@@ -98,8 +98,8 @@ export const TaskPanel = ({
                     emptyMessage={emptyMessage}
                     className={cn(
                         "-m-1 min-h-24 flex-1 overflow-x-hidden overflow-y-auto rounded-card p-1",
-                        "outline-2 -outline-offset-1 outline-transparent transition-[outline-color] duration-150",
-                        isDragOver && "outline-dashed outline-muted/60"
+                        "outline-2 -outline-offset-1 transition-[outline-color] duration-150",
+                        isDragOver ? "outline-dashed outline-muted/60" : "outline-transparent"
                     )}
                 />
             </div>

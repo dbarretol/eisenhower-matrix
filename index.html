@@ -6,6 +6,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Eisenhower Matrix</title>
   <meta name="description" content="Prioritize your tasks by urgency and importance with an interactive Eisenhower Matrix." />
+  <meta name="theme-color" content="#E9EEF3" media="(prefers-color-scheme: light)" />
+  <meta name="theme-color" content="#161C27" media="(prefers-color-scheme: dark)" />
+  <script>
+    // Apply the saved or system theme before first paint to avoid a flash.
+    (function () {
+      try {
+        var saved = localStorage.getItem('eisenhower-matrix-theme');
+        var dark = saved ? saved === 'dark' : window.matchMedia('(prefers-color-scheme: dark)').matches;
+        if (dark) document.documentElement.classList.add('dark');
+      } catch (e) { }
+    })();
+  </script>
 </head>
 
 <body>

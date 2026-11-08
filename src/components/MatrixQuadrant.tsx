@@ -2,6 +2,14 @@ import { Task, QuadrantConfig } from '@/types/task';
 import { TaskItem } from './TaskItem';
 import { cn } from '@/lib/utils';
 
+// Full class names so Tailwind can detect them at build time.
+const QUADRANT_BACKGROUNDS: Record<QuadrantConfig['id'], string> = {
+    urgent_important: 'bg-gradient-urgent-important',
+    important: 'bg-gradient-important',
+    urgent: 'bg-gradient-urgent',
+    neither: 'bg-gradient-neither',
+};
+
 interface MatrixQuadrantProps {
     config: QuadrantConfig;
     tasks: Task[];
@@ -31,7 +39,7 @@ export const MatrixQuadrant = ({
             onDrop={onDrop}
             className={cn(
                 "h-full rounded-lg p-4 transition-all duration-300",
-                `bg-gradient-${config.id}`,
+                QUADRANT_BACKGROUNDS[config.id],
                 "border-2 border-matrix-border/50",
                 isDragOver && "border-matrix-green shadow-glow scale-[1.02]",
                 "backdrop-blur-sm"

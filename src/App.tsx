@@ -34,6 +34,8 @@ const App = () => {
         deleteTask(taskId);
         toast('Task deleted', {
             description: `“${task.text}”`,
+            // Long enough to reach Undo with the keyboard or a screen reader.
+            duration: 8000,
             action: {
                 label: 'Undo',
                 onClick: () => restoreTask(task, index),
@@ -51,6 +53,7 @@ const App = () => {
                         onToggleComplete={handleToggleComplete}
                         onDelete={handleDeleteTask}
                         isDragOver={dragOverContainer === 'unassigned'}
+                        activeTaskId={activeTask?.id}
                     />
 
                     <main className="flex min-w-0 flex-col px-5 pt-5 pb-6 lg:h-screen lg:px-7 lg:pb-7">

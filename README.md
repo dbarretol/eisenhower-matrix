@@ -13,6 +13,7 @@ Sort your tasks by what matters and what can't wait. Add tasks to a backlog, the
 - **Keyboard and touch.** Every move you can make with a mouse also works with the keyboard and with press-and-hold on touch screens.
 - **Saved automatically.** Tasks stay in your browser between visits. Nothing is sent to a server.
 - **Undo delete.** Deleted a task by mistake? Click **Undo** in the notification.
+- **Import and export.** Save your tasks to a JSON file and load them back, on this device or another one.
 - **Light and dark themes.** Follows your system setting until you pick one.
 - **Search.** A search field appears once the backlog has six or more tasks.
 
@@ -51,6 +52,11 @@ Screen readers announce each step.
 
 Tasks are stored in your browser's `localStorage`, so they belong to that browser and that device. Clearing your site data deletes them. If the saved data can't be read, the app starts empty and keeps a copy of the unreadable data under the `eisenhower-matrix-tasks-corrupted-backup` key.
 
+To keep a backup or move your tasks, open the **⋮** menu next to the theme switch:
+
+- **Export tasks** downloads a file like `eisenhower-tasks-2026-11-08.json`.
+- **Import tasks…** loads a file. If you already have tasks, you choose whether to add only the new ones or replace everything. Either way, **Undo** in the notification puts things back.
+
 ## Built with
 
 - [React](https://react.dev/) 19 and [TypeScript](https://www.typescriptlang.org/)
@@ -66,8 +72,8 @@ Tasks are stored in your browser's `localStorage`, so they belong to that browse
 src/
 ├── App.tsx         Page layout, drag-and-drop context and delete with undo
 ├── components/     UI components (matrix, quadrants, task list, task card)
-├── hooks/          Task storage, drag and drop, theme, reduced motion
-├── lib/            Quadrant definitions, drag-and-drop behavior, helpers
+├── hooks/          Task storage, drag and drop, import and export, theme, reduced motion
+├── lib/            Quadrant definitions, drag-and-drop behavior, task helpers, file format
 └── types/          Shared types
 ```
 

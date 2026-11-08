@@ -3,12 +3,11 @@ import { Task } from '@/types/task';
 import { TaskPanel } from '@/components/TaskPanel';
 import { EisenhowerMatrix } from '@/components/EisenhowerMatrix';
 import { useTaskStorage } from '@/hooks/useTaskStorage';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
 
 const Index = () => {
     const { tasks, addTask, updateTask, deleteTask, moveTask } = useTaskStorage();
     const [draggedTaskId, setDraggedTaskId] = useState<string | null>(null);
-    const { toast } = useToast();
 
     const handleDragStart = (e: React.DragEvent, task: Task) => {
         e.dataTransfer.setData('text/plain', task.id);
@@ -23,8 +22,7 @@ const Index = () => {
         const task = tasks.find(t => t.id === taskId);
         if (task) {
             updateTask(taskId, { completed: !task.completed });
-            toast({
-                title: task.completed ? "Task marked incomplete" : "Task completed!",
+            toast(task.completed ? "Task marked incomplete" : "Task completed!", {
                 description: `"${task.text}" has been ${task.completed ? 'marked as incomplete' : 'completed'}`,
             });
         }
@@ -33,10 +31,8 @@ const Index = () => {
     const handleDeleteTask = (taskId: string) => {
         const task = tasks.find(t => t.id === taskId);
         deleteTask(taskId);
-        toast({
-            title: "Task deleted",
+        toast.error("Task deleted", {
             description: `"${task?.text}" has been removed`,
-            variant: "destructive",
         });
     };
 
@@ -51,8 +47,7 @@ const Index = () => {
                 urgent: 'Urgent, Not Important',
                 neither: 'Not Urgent, Not Important'
             };
-            toast({
-                title: "Task moved",
+            toast("Task moved", {
                 description: `"${task.text}" moved to ${quadrantNames[newQuadrant]}`,
             });
         }
@@ -60,8 +55,7 @@ const Index = () => {
 
     const handleAddTask = (text: string) => {
         addTask(text);
-        toast({
-            title: "Task added",
+        toast("Task added", {
             description: `"${text}" added to your backlog`,
         });
     };

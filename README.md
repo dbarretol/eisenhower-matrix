@@ -18,7 +18,7 @@ Sort your tasks by what matters and what can't wait. Add tasks to a backlog, the
 
 ## Getting started
 
-You need [Node.js](https://nodejs.org/) 20.19+ or 22.12+.
+You need [Node.js](https://nodejs.org/) 22.12 or later.
 
 ```bash
 git clone https://github.com/dbarretol/eisenhower-matrix.git
@@ -29,12 +29,14 @@ npm run dev
 
 Then open the address Vite prints in your terminal.
 
-| Command           | What it does                                  |
-| ----------------- | --------------------------------------------- |
-| `npm run dev`     | Starts the development server                 |
-| `npm run build`   | Type-checks and builds the app into `dist/`   |
-| `npm run preview` | Serves the production build locally           |
-| `npm run lint`    | Runs ESLint                                   |
+| Command              | What it does                                   |
+| -------------------- | ---------------------------------------------- |
+| `npm run dev`        | Starts the development server                  |
+| `npm run build`      | Type-checks and builds the app into `dist/`    |
+| `npm run preview`    | Serves the production build locally            |
+| `npm run lint`       | Runs ESLint                                    |
+| `npm test`           | Runs the unit tests once                       |
+| `npm run test:watch` | Runs the unit tests and reruns them on changes |
 
 ## Using the keyboard
 

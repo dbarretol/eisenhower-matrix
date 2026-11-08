@@ -64,6 +64,20 @@ describe('useTaskStorage', () => {
         expect(result.current.tasks).toHaveLength(1);
     });
 
+    it('waits to save while saving is paused, then saves the latest tasks', () => {
+        const { result } = renderHook(() => useTaskStorage());
+        act(() => result.current.addTask('A'));
+        const [a] = result.current.tasks;
+
+        act(() => result.current.setSavingPaused(true));
+        act(() => result.current.moveTask(a.id, 'urgent'));
+        act(() => result.current.moveTask(a.id, 'important'));
+        expect(saved()).toEqual([a]);
+
+        act(() => result.current.setSavingPaused(false));
+        expect(saved()).toEqual([{ ...a, quadrant: 'important' }]);
+    });
+
     it('reorders tasks', () => {
         const { result } = renderHook(() => useTaskStorage());
         act(() => {

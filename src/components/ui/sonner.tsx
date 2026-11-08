@@ -1,29 +1,32 @@
-import { useTheme } from "next-themes"
-import { Toaster as Sonner, toast } from "sonner"
+import { useEffect, useState } from "react"
+import { Toaster as Sonner } from "sonner"
 
 type ToasterProps = React.ComponentProps<typeof Sonner>
 
-const Toaster = ({ ...props }: ToasterProps) => {
-    const { theme = "system" } = useTheme()
+const currentTheme = () => (document.documentElement.classList.contains("dark") ? "dark" : "light")
+
+// Follows the `dark` class that the app sets on <html>.
+export const Toaster = (props: ToasterProps) => {
+    const [theme, setTheme] = useState<"light" | "dark">(currentTheme)
+
+    useEffect(() => {
+        const observer = new MutationObserver(() => setTheme(currentTheme()))
+        observer.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] })
+        return () => observer.disconnect()
+    }, [])
 
     return (
         <Sonner
-            theme={theme as ToasterProps["theme"]}
-            className="toaster group"
+            theme={theme}
+            position="bottom-right"
             toastOptions={{
                 classNames: {
-                    toast:
-                        "group toast group-[.toaster]:bg-background group-[.toaster]:text-foreground group-[.toaster]:border-border group-[.toaster]:shadow-lg",
-                    description: "group-[.toast]:text-muted-foreground",
-                    actionButton:
-                        "group-[.toast]:bg-primary group-[.toast]:text-primary-foreground",
-                    cancelButton:
-                        "group-[.toast]:bg-muted group-[.toast]:text-muted-foreground",
+                    toast: "!bg-card !text-ink !border-line !shadow-lift !font-sans !rounded-card",
+                    description: "!text-muted",
+                    actionButton: "!bg-ink !text-bg !font-bold",
                 },
             }}
             {...props}
         />
     )
 }
-
-export { Toaster, toast }

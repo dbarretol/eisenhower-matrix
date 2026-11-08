@@ -1,7 +1,5 @@
 import { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Plus } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 interface TaskInputProps {
     onAddTask: (text: string) => void;
@@ -20,19 +18,25 @@ export const TaskInput = ({ onAddTask }: TaskInputProps) => {
 
     return (
         <form onSubmit={handleSubmit} className="flex gap-2">
-            <Input
+            <input
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
-                placeholder="Enter a new task..."
-                className="flex-1 bg-matrix-surface border-matrix-border focus:border-matrix-green focus:ring-matrix-green"
+                placeholder="Add a task"
+                aria-label="New task"
+                autoComplete="off"
+                enterKeyHint="done"
+                maxLength={200}
+                className={cn(
+                    "h-10 min-w-0 flex-1 rounded-card border border-line bg-card px-3 text-ink",
+                    "placeholder:text-muted focus-visible:border-ink"
+                )}
             />
-            <Button
+            <button
                 type="submit"
-                size="sm"
-                className="bg-matrix-green hover:bg-matrix-green/90 text-matrix-bg font-semibold shadow-glow"
+                className="h-10 rounded-card bg-ink px-3.5 text-sm font-bold text-bg transition-opacity duration-150 hover:opacity-90"
             >
-                <Plus className="h-4 w-4" />
-            </Button>
+                Add
+            </button>
         </form>
     );
 };

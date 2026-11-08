@@ -1,112 +1,62 @@
-import { Task, QuadrantConfig } from '@/types/task';
+import { Task } from '@/types/task';
+import { QUADRANT_CONFIGS } from '@/lib/quadrants';
 import { MatrixQuadrant } from './MatrixQuadrant';
-import { useState } from 'react';
+import { cn } from '@/lib/utils';
 
 interface EisenhowerMatrixProps {
     tasks: Task[];
     onToggleComplete: (taskId: string) => void;
     onDelete: (taskId: string) => void;
-    onDragStart: (e: React.DragEvent, task: Task) => void;
-    onMoveTask: (taskId: string, quadrant: Task['quadrant']) => void;
-    draggedTaskId: string | null;
+    dragOverContainer: Task['quadrant'] | null;
 }
 
-const QUADRANT_CONFIGS: QuadrantConfig[] = [
-    {
-        id: 'urgent_important',
-        title: 'Urgent & Important',
-        description: 'Do first - Crisis management',
-        gradient: 'urgent-important',
-        icon: '🔥'
-    },
-    {
-        id: 'important',
-        title: 'Important, Not Urgent',
-        description: 'Schedule - Prevention & planning',
-        gradient: 'important',
-        icon: '📅'
-    },
-    {
-        id: 'urgent',
-        title: 'Urgent, Not Important',
-        description: 'Delegate - Interruptions',
-        gradient: 'urgent',
-        icon: '⏰'
-    },
-    {
-        id: 'neither',
-        title: 'Not Urgent, Not Important',
-        description: 'Eliminate - Time wasters',
-        gradient: 'neither',
-        icon: '🗑️'
-    }
-];
+// Grid placement and the two crossing axes (drawn as borders between zones).
+const ZONE_LAYOUT: Record<string, string> = {
+    urgent_important: 'lg:col-start-2 lg:row-start-2 lg:border-r-2 lg:border-b-2 lg:border-axis',
+    important: 'lg:col-start-3 lg:row-start-2 lg:border-b-2 lg:border-axis',
+    urgent: 'lg:col-start-2 lg:row-start-3 lg:border-r-2 lg:border-axis',
+    neither: 'lg:col-start-3 lg:row-start-3',
+};
+
+const axisLabel = "hidden items-center justify-center font-display text-[15px] font-semibold text-ink lg:flex";
 
 export const EisenhowerMatrix = ({
     tasks,
     onToggleComplete,
     onDelete,
-    onDragStart,
-    onMoveTask,
-    draggedTaskId
+    dragOverContainer
 }: EisenhowerMatrixProps) => {
-    const [dragOverQuadrant, setDragOverQuadrant] = useState<string | null>(null);
-
-    const handleDragOver = (e: React.DragEvent, quadrantId: string) => {
-        e.preventDefault();
-        setDragOverQuadrant(quadrantId);
-    };
-
-    const handleDragLeave = () => {
-        setDragOverQuadrant(null);
-    };
-
-    const handleDrop = (e: React.DragEvent, quadrantId: string) => {
-        e.preventDefault();
-        setDragOverQuadrant(null);
-
-        const taskId = e.dataTransfer.getData('text/plain');
-        if (taskId) {
-            onMoveTask(taskId, quadrantId as Task['quadrant']);
-        }
-    };
-
-    const getTasksForQuadrant = (quadrantId: string) => {
-        return tasks.filter(task => task.quadrant === quadrantId);
-    };
-
     return (
-        <div className="flex-1 p-6 bg-gradient-matrix">
-            <div className="mb-6">
-                <h1 className="text-3xl font-bold text-matrix-green mb-2 animate-matrix-glow">
-                    Eisenhower Matrix
-                </h1>
-                <p className="text-muted-foreground">
-                    Organize your tasks by urgency and importance
-                </p>
-            </div>
+        <div
+            role="region"
+            aria-label="Eisenhower matrix"
+            className={cn(
+                "grid min-h-0 flex-1 gap-3 md:grid-cols-2 lg:gap-0",
+                "lg:grid-cols-[34px_1fr_1fr] lg:grid-rows-[30px_1fr_1fr]"
+            )}
+        >
+            <div aria-hidden="true" className={cn(axisLabel, "lg:col-start-2 lg:row-start-1")}>Urgent</div>
+            <div aria-hidden="true" className={cn(axisLabel, "lg:col-start-3 lg:row-start-1")}>Not urgent</div>
+            <div aria-hidden="true" className={cn(axisLabel, "lg:col-start-1 lg:row-start-2 [writing-mode:vertical-rl] rotate-180")}>Important</div>
+            <div aria-hidden="true" className={cn(axisLabel, "lg:col-start-1 lg:row-start-3 [writing-mode:vertical-rl] rotate-180")}>Not important</div>
 
-            <div className="grid grid-cols-2 gap-6 h-[calc(100vh-200px)]">
-                {QUADRANT_CONFIGS.map((config) => (
-                    <div
-                        key={config.id}
-                        onDragLeave={handleDragLeave}
-                        className="animate-fade-in"
-                    >
-                        <MatrixQuadrant
-                            config={config}
-                            tasks={getTasksForQuadrant(config.id)}
-                            onToggleComplete={onToggleComplete}
-                            onDelete={onDelete}
-                            onDragStart={onDragStart}
-                            onDragOver={(e) => handleDragOver(e, config.id)}
-                            onDrop={(e) => handleDrop(e, config.id)}
-                            draggedTaskId={draggedTaskId}
-                            isDragOver={dragOverQuadrant === config.id}
-                        />
-                    </div>
-                ))}
-            </div>
+            {QUADRANT_CONFIGS.map((config) => (
+                <MatrixQuadrant
+                    key={config.id}
+                    config={config}
+                    tasks={tasks.filter(task => task.quadrant === config.id)}
+                    onToggleComplete={onToggleComplete}
+                    onDelete={onDelete}
+                    isDragOver={dragOverContainer === config.id}
+                    className={cn("rounded-card lg:rounded-none", ZONE_LAYOUT[config.id])}
+                />
+            ))}
+
+            {/* Point where the axes cross */}
+            <span
+                aria-hidden="true"
+                className="pointer-events-none z-20 hidden size-3 place-self-center rounded-full bg-axis shadow-[0_0_0_4px_var(--plane)] lg:col-start-2 lg:col-end-4 lg:row-start-2 lg:row-end-4 lg:block"
+            />
         </div>
     );
 };

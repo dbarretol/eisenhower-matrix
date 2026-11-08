@@ -2,26 +2,67 @@ import { useState, useEffect } from 'react';
 import { Task } from '@/types/task';
 
 const STORAGE_KEY = 'eisenhower-matrix-tasks';
+const BACKUP_KEY = `${STORAGE_KEY}-corrupted-backup`;
 
-export const useTaskStorage = () => {
-    const [tasks, setTasks] = useState<Task[]>([]);
+const QUADRANTS: ReadonlySet<Task['quadrant']> = new Set([
+    'unassigned',
+    'urgent_important',
+    'important',
+    'urgent',
+    'neither',
+]);
 
-    // Load tasks from localStorage on mount
-    useEffect(() => {
-        const savedTasks = localStorage.getItem(STORAGE_KEY);
-        if (savedTasks) {
+// Keeps only well-formed tasks so corrupted or outdated data can't break the app.
+const sanitizeTasks = (value: unknown): Task[] => {
+    if (!Array.isArray(value)) return [];
+
+    return value.flatMap((item): Task[] => {
+        if (typeof item !== 'object' || item === null) return [];
+        const { id, text, quadrant, completed, createdAt } = item as Record<string, unknown>;
+        if (typeof id !== 'string' || typeof text !== 'string') return [];
+
+        return [{
+            id,
+            text,
+            quadrant: QUADRANTS.has(quadrant as Task['quadrant'])
+                ? (quadrant as Task['quadrant'])
+                : 'unassigned',
+            completed: completed === true,
+            createdAt: typeof createdAt === 'string' ? createdAt : new Date().toISOString(),
+        }];
+    });
+};
+
+// Reads saved tasks synchronously so the first render already has them and the
+// save effect never overwrites stored data with an empty list.
+const loadTasks = (): Task[] => {
+    let saved: string | null = null;
+    try {
+        saved = localStorage.getItem(STORAGE_KEY);
+        return saved ? sanitizeTasks(JSON.parse(saved)) : [];
+    } catch (error) {
+        console.error('Error loading tasks:', error);
+        // Keep unreadable data instead of letting the next save overwrite it.
+        if (saved) {
             try {
-                const parsedTasks = JSON.parse(savedTasks);
-                setTasks(parsedTasks);
-            } catch (error) {
-                console.error('Error loading tasks:', error);
+                localStorage.setItem(BACKUP_KEY, saved);
+            } catch {
+                // Storage unavailable; nothing else to do.
             }
         }
-    }, []);
+        return [];
+    }
+};
 
-    // Save tasks to localStorage whenever tasks change
+export const useTaskStorage = () => {
+    const [tasks, setTasks] = useState<Task[]>(loadTasks);
+
     useEffect(() => {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
+        try {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
+        } catch (error) {
+            console.error('Error saving tasks:', error);
+        }
     }, [tasks]);
 
     const addTask = (text: string) => {

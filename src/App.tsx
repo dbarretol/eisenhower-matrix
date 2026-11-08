@@ -4,11 +4,14 @@ import { TaskPanel } from '@/components/TaskPanel';
 import { TaskItem } from '@/components/TaskItem';
 import { EisenhowerMatrix } from '@/components/EisenhowerMatrix';
 import { ThemeToggle } from '@/components/ThemeToggle';
+import { DataMenu } from '@/components/DataMenu';
+import { ImportDialog } from '@/components/ImportDialog';
 import { Toaster } from '@/components/ui/sonner';
 import { useTheme } from '@/hooks/useTheme';
 import { useTaskStorage } from '@/hooks/useTaskStorage';
 import { useTaskDragAndDrop } from '@/hooks/useTaskDragAndDrop';
 import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion';
+import { useImportExport } from '@/hooks/useImportExport';
 import { LIFT_ROTATION, dropAnimation } from '@/lib/dnd';
 
 const App = () => {
@@ -23,6 +26,9 @@ const App = () => {
         reorderTask,
         setSavingPaused,
     });
+
+    const { exportTasks, importFile, pendingImport, addPending, replaceWithPending, cancelImport } =
+        useImportExport(tasks, setTasks);
 
     const handleToggleComplete = (taskId: string) => {
         const task = tasks.find(t => t.id === taskId);
@@ -59,8 +65,9 @@ const App = () => {
                     />
 
                     <main className="flex min-w-0 flex-col px-5 pt-5 pb-6 lg:h-screen lg:px-7 lg:pb-7">
-                        <div className="mb-2.5 flex justify-end">
+                        <div className="mb-2.5 flex justify-end gap-2">
                             <ThemeToggle theme={theme} onChange={setTheme} />
+                            <DataMenu canExport={tasks.length > 0} onExport={exportTasks} onImportFile={importFile} />
                         </div>
                         <EisenhowerMatrix
                             tasks={tasks}
@@ -79,6 +86,16 @@ const App = () => {
                     {activeTask ? <TaskItem task={activeTask} isOverlay /> : null}
                 </DragOverlay>
             </DndContext>
+
+            {pendingImport && (
+                <ImportDialog
+                    pending={pendingImport}
+                    currentCount={tasks.length}
+                    onAdd={addPending}
+                    onReplace={replaceWithPending}
+                    onCancel={cancelImport}
+                />
+            )}
 
             <Toaster />
         </>

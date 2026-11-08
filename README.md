@@ -1,5 +1,7 @@
 # Eisenhower Matrix
 
+[![CI](https://github.com/dbarretol/eisenhower-matrix/actions/workflows/ci.yml/badge.svg)](https://github.com/dbarretol/eisenhower-matrix/actions/workflows/ci.yml)
+
 Sort your tasks by what matters and what can't wait. Add tasks to a backlog, then drag each one into the quadrant it belongs to: **Do**, **Schedule**, **Delegate** or **Drop**.
 
 ![Eisenhower Matrix in dark mode, with tasks in the backlog and in all four quadrants](docs/screenshot.jpg)
@@ -66,3 +68,7 @@ src/
 ├── pages/          Main page with the drag-and-drop logic
 └── types/          Shared types
 ```
+
+## License
+
+[MIT](LICENSE)

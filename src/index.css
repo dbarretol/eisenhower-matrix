@@ -153,6 +153,11 @@
   visibility: hidden;
 }
 
+/* The drag handle keeps focus while the task is moved with the keyboard. */
+.task-slot > [data-drag-handle] {
+  visibility: visible;
+}
+
 /* Picking up a card: it tilts into its lifted angle */
 @keyframes lift {
   from { rotate: 0deg; }

@@ -1,4 +1,5 @@
-import { Task, QuadrantConfig } from '@/types/task';
+import type { CSSProperties } from 'react';
+import type { QuadrantConfig, Task } from '@/types/task';
 import { TaskList } from './TaskList';
 import { cn } from '@/lib/utils';
 
@@ -24,7 +25,7 @@ export const MatrixQuadrant = ({
     return (
         <section
             aria-labelledby={headingId}
-            style={{ '--zone': `var(${config.colorVar})` } as React.CSSProperties}
+            style={{ '--zone': `var(${config.colorVar})` } as CSSProperties}
             className={cn(
                 "zone relative flex min-h-56 flex-col gap-3 overflow-hidden px-5 pt-4 pb-5",
                 "transition-shadow duration-150",

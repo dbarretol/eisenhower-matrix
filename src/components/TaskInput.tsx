@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, type FormEvent } from 'react';
 import { cn } from '@/lib/utils';
 
 interface TaskInputProps {
@@ -8,7 +8,7 @@ interface TaskInputProps {
 export const TaskInput = ({ onAddTask }: TaskInputProps) => {
     const [inputValue, setInputValue] = useState('');
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = (e: FormEvent) => {
         e.preventDefault();
         if (inputValue.trim()) {
             onAddTask(inputValue);

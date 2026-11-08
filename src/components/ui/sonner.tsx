@@ -1,7 +1,7 @@
-import { useEffect, useState } from "react"
+import { useEffect, useState, type ComponentProps } from "react"
 import { Toaster as Sonner } from "sonner"
 
-type ToasterProps = React.ComponentProps<typeof Sonner>
+type ToasterProps = ComponentProps<typeof Sonner>
 
 const currentTheme = () => (document.documentElement.classList.contains("dark") ? "dark" : "light")
 

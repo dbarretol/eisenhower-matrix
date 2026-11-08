@@ -1,6 +1,6 @@
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { Task } from '@/types/task';
+import type { Task } from '@/types/task';
 import { TaskItem } from './TaskItem';
 
 interface SortableTaskItemProps {

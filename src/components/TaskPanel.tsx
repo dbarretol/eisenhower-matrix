@@ -1,8 +1,8 @@
-import { Task } from '@/types/task';
+import type { Task } from '@/types/task';
 import { TaskInput } from './TaskInput';
 import { TaskList } from './TaskList';
 import { Search } from 'lucide-react';
-import { useState } from 'react';
+import { useState, type CSSProperties } from 'react';
 import { cn } from '@/lib/utils';
 
 interface TaskPanelProps {
@@ -40,7 +40,7 @@ export const TaskPanel = ({
     return (
         <aside
             aria-label="Backlog"
-            style={{ '--zone': 'var(--muted)' } as React.CSSProperties}
+            style={{ '--zone': 'var(--muted)' } as CSSProperties}
             className={cn(
                 "flex flex-col gap-5 border-line px-5 pt-7 pb-5",
                 "lg:sticky lg:top-0 lg:h-screen lg:border-r",

@@ -1,9 +1,10 @@
-import { Task } from '@/types/task';
+import type { HTMLAttributes, KeyboardEvent, Ref } from 'react';
+import type { Task } from '@/types/task';
 import { Checkbox } from '@/components/ui/checkbox';
 import { X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-interface TaskItemProps extends React.HTMLAttributes<HTMLDivElement> {
+interface TaskItemProps extends HTMLAttributes<HTMLDivElement> {
     task: Task;
     onToggleComplete?: (taskId: string) => void;
     onDelete?: (taskId: string) => void;
@@ -11,11 +12,11 @@ interface TaskItemProps extends React.HTMLAttributes<HTMLDivElement> {
     isDragging?: boolean;
     /** The floating copy that follows the pointer while dragging. */
     isOverlay?: boolean;
-    ref?: React.Ref<HTMLDivElement>;
+    ref?: Ref<HTMLDivElement>;
 }
 
 // Keeps Space/Enter on inner controls from starting a keyboard drag of the card.
-const stopKeyboardDrag = (e: React.KeyboardEvent) => e.stopPropagation();
+const stopKeyboardDrag = (e: KeyboardEvent) => e.stopPropagation();
 
 export const TaskItem = ({
     task,

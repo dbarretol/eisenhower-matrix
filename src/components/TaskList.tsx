@@ -1,11 +1,11 @@
 import { useDroppable } from '@dnd-kit/core';
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
-import { Task } from '@/types/task';
+import type { ContainerId, Task } from '@/types/task';
 import { SortableTaskItem } from './SortableTaskItem';
 import { cn } from '@/lib/utils';
 
 interface TaskListProps {
-    containerId: Task['quadrant'];
+    containerId: ContainerId;
     tasks: Task[];
     onToggleComplete: (taskId: string) => void;
     onDelete: (taskId: string) => void;

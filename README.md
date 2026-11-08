@@ -18,7 +18,7 @@ Sort your tasks by what matters and what can't wait. Add tasks to a backlog, the
 
 ## Getting started
 
-You need [Node.js](https://nodejs.org/) 20.19 or later.
+You need [Node.js](https://nodejs.org/) 20.19+ or 22.12+.
 
 ```bash
 git clone https://github.com/dbarretol/eisenhower-matrix.git
@@ -62,10 +62,10 @@ Tasks are stored in your browser's `localStorage`, so they belong to that browse
 
 ```text
 src/
+├── App.tsx         Page layout, drag-and-drop context and delete with undo
 ├── components/     UI components (matrix, quadrants, task list, task card)
-├── hooks/          Task storage and theme
-├── lib/            Quadrant definitions and helpers
-├── pages/          Main page with the drag-and-drop logic
+├── hooks/          Task storage, drag and drop, theme, reduced motion
+├── lib/            Quadrant definitions, drag-and-drop behavior, helpers
 └── types/          Shared types
 ```
 

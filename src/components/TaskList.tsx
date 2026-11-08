@@ -1,11 +1,13 @@
 import { useDroppable } from '@dnd-kit/core';
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
-import { Task } from '@/types/task';
+import type { ContainerId, Task } from '@/types/task';
 import { SortableTaskItem } from './SortableTaskItem';
 import { cn } from '@/lib/utils';
 
 interface TaskListProps {
-    containerId: Task['quadrant'];
+    containerId: ContainerId;
+    /** Accessible name for the list, also used when focus moves to it after a delete. */
+    label: string;
     tasks: Task[];
     onToggleComplete: (taskId: string) => void;
     onDelete: (taskId: string) => void;
@@ -16,6 +18,7 @@ interface TaskListProps {
 // A drop target that holds a sortable list of tasks.
 export const TaskList = ({
     containerId,
+    label,
     tasks,
     onToggleComplete,
     onDelete,
@@ -26,7 +29,14 @@ export const TaskList = ({
 
     return (
         <SortableContext id={containerId} items={tasks.map(t => t.id)} strategy={verticalListSortingStrategy}>
-            <div ref={setNodeRef} className={cn("flex flex-col gap-2", className)}>
+            <div
+                ref={setNodeRef}
+                role="group"
+                aria-label={label}
+                tabIndex={-1}
+                data-task-list
+                className={cn("flex flex-col gap-2 focus-visible:outline-2 focus-visible:outline-solid focus-visible:outline-ink", className)}
+            >
                 {tasks.length > 0 ? (
                     tasks.map(task => (
                         <SortableTaskItem

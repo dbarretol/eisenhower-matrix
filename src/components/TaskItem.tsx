@@ -1,9 +1,10 @@
-import { Task } from '@/types/task';
+import type { HTMLAttributes, Ref } from 'react';
+import type { Task } from '@/types/task';
 import { Checkbox } from '@/components/ui/checkbox';
 import { X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-interface TaskItemProps extends React.HTMLAttributes<HTMLDivElement> {
+interface TaskItemProps extends HTMLAttributes<HTMLDivElement> {
     task: Task;
     onToggleComplete?: (taskId: string) => void;
     onDelete?: (taskId: string) => void;
@@ -11,11 +12,20 @@ interface TaskItemProps extends React.HTMLAttributes<HTMLDivElement> {
     isDragging?: boolean;
     /** The floating copy that follows the pointer while dragging. */
     isOverlay?: boolean;
-    ref?: React.Ref<HTMLDivElement>;
+    ref?: Ref<HTMLDivElement>;
+    /** Props for the keyboard drag handle (role, focus and screen reader hints). */
+    handleProps?: HTMLAttributes<HTMLButtonElement>;
+    handleRef?: Ref<HTMLButtonElement>;
 }
 
-// Keeps Space/Enter on inner controls from starting a keyboard drag of the card.
-const stopKeyboardDrag = (e: React.KeyboardEvent) => e.stopPropagation();
+// Before a task is deleted, move focus to the next task (or the previous one, or its list)
+// so keyboard users don't land at the top of the page.
+const focusNeighbor = (card: HTMLElement) => {
+    const sibling = (card.nextElementSibling ?? card.previousElementSibling) as HTMLElement | null;
+    const handle = sibling?.querySelector<HTMLElement>('[data-drag-handle]');
+    const list = card.closest<HTMLElement>('[data-task-list]');
+    (handle ?? list)?.focus();
+};
 
 export const TaskItem = ({
     task,
@@ -25,26 +35,43 @@ export const TaskItem = ({
     isOverlay = false,
     className,
     ref,
+    handleProps,
+    handleRef,
     ...props
 }: TaskItemProps) => {
     return (
         <div
             ref={ref}
+            data-task-card
             className={cn(
-                "group relative flex items-start gap-2.5 rounded-card border border-line bg-card py-2.5 pr-2 pl-3",
-                "shadow-card cursor-grab touch-none select-none",
-                "transition-[border-color,box-shadow] duration-150",
-                "hover:border-muted/60",
+                "group relative flex items-start gap-2.5 rounded-card border bg-card py-2.5 pr-2 pl-3",
+                "touch-none select-none transition-[border-color,box-shadow] duration-150",
+                isOverlay
+                    ? "cursor-grabbing border-ink shadow-lift"
+                    : "cursor-grab border-line shadow-card hover:border-muted/60",
+                // The handle is invisible, so the whole card shows its keyboard focus.
+                "has-[[data-drag-handle]:focus-visible]:outline-2 has-[[data-drag-handle]:focus-visible]:outline-offset-2 has-[[data-drag-handle]:focus-visible]:outline-ink",
                 isDragging && "task-slot",
-                isOverlay && "cursor-grabbing border-ink shadow-lift",
                 className
             )}
             {...props}
         >
+            {/* Pointer and touch drag the whole card; the keyboard drags with this handle,
+                so the checkbox and delete button aren't nested inside another control. */}
+            {!isOverlay && (
+                <button
+                    ref={handleRef}
+                    type="button"
+                    data-drag-handle
+                    aria-label={`Move “${task.text}”`}
+                    className="sr-only"
+                    {...handleProps}
+                />
+            )}
+
             <Checkbox
                 checked={task.completed}
                 onCheckedChange={() => onToggleComplete?.(task.id)}
-                onKeyDown={stopKeyboardDrag}
                 aria-label={task.completed ? `Mark “${task.text}” as not done` : `Mark “${task.text}” as done`}
                 className="mt-px"
             />
@@ -60,15 +87,17 @@ export const TaskItem = ({
 
             <button
                 type="button"
-                onClick={() => onDelete?.(task.id)}
-                onKeyDown={stopKeyboardDrag}
+                onClick={(e) => {
+                    const card = e.currentTarget.closest<HTMLElement>('[data-task-card]');
+                    if (card) focusNeighbor(card);
+                    onDelete?.(task.id);
+                }}
                 aria-label={`Delete “${task.text}”`}
                 className={cn(
-                    "-my-1 grid size-7 shrink-0 place-items-center rounded-md text-muted",
-                    "opacity-0 transition-opacity duration-150 group-hover:opacity-100 focus-visible:opacity-100",
-                    "[@media(hover:none)]:opacity-100",
+                    "-my-1 grid size-7 shrink-0 place-items-center rounded-md text-muted opacity-0 transition-opacity duration-150",
                     "hover:bg-danger/10 hover:text-danger",
-                    isOverlay && "opacity-0 group-hover:opacity-0"
+                    // The floating copy never shows the delete button.
+                    !isOverlay && "group-hover:opacity-100 focus-visible:opacity-100 [@media(hover:none)]:opacity-100"
                 )}
             >
                 <X className="size-4" />

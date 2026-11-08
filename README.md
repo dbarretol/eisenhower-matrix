@@ -18,7 +18,7 @@ Sort your tasks by what matters and what can't wait. Add tasks to a backlog, the
 
 ## Getting started
 
-You need [Node.js](https://nodejs.org/) 20.19 or later.
+You need [Node.js](https://nodejs.org/) 22.12 or later.
 
 ```bash
 git clone https://github.com/dbarretol/eisenhower-matrix.git
@@ -29,12 +29,14 @@ npm run dev
 
 Then open the address Vite prints in your terminal.
 
-| Command           | What it does                                  |
-| ----------------- | --------------------------------------------- |
-| `npm run dev`     | Starts the development server                 |
-| `npm run build`   | Type-checks and builds the app into `dist/`   |
-| `npm run preview` | Serves the production build locally           |
-| `npm run lint`    | Runs ESLint                                   |
+| Command              | What it does                                   |
+| -------------------- | ---------------------------------------------- |
+| `npm run dev`        | Starts the development server                  |
+| `npm run build`      | Type-checks and builds the app into `dist/`    |
+| `npm run preview`    | Serves the production build locally            |
+| `npm run lint`       | Runs ESLint                                    |
+| `npm test`           | Runs the unit tests once                       |
+| `npm run test:watch` | Runs the unit tests and reruns them on changes |
 
 ## Using the keyboard
 
@@ -62,10 +64,10 @@ Tasks are stored in your browser's `localStorage`, so they belong to that browse
 
 ```text
 src/
+├── App.tsx         Page layout, drag-and-drop context and delete with undo
 ├── components/     UI components (matrix, quadrants, task list, task card)
-├── hooks/          Task storage and theme
-├── lib/            Quadrant definitions and helpers
-├── pages/          Main page with the drag-and-drop logic
+├── hooks/          Task storage, drag and drop, theme, reduced motion
+├── lib/            Quadrant definitions, drag-and-drop behavior, helpers
 └── types/          Shared types
 ```
 

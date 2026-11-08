@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useState, type FormEvent } from 'react';
 import { cn } from '@/lib/utils';
+import { MAX_TASK_LENGTH } from '@/lib/tasks';
 
 interface TaskInputProps {
     onAddTask: (text: string) => void;
@@ -8,7 +9,7 @@ interface TaskInputProps {
 export const TaskInput = ({ onAddTask }: TaskInputProps) => {
     const [inputValue, setInputValue] = useState('');
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = (e: FormEvent) => {
         e.preventDefault();
         if (inputValue.trim()) {
             onAddTask(inputValue);
@@ -25,7 +26,7 @@ export const TaskInput = ({ onAddTask }: TaskInputProps) => {
                 aria-label="New task"
                 autoComplete="off"
                 enterKeyHint="done"
-                maxLength={200}
+                maxLength={MAX_TASK_LENGTH}
                 className={cn(
                     "h-10 min-w-0 flex-1 rounded-card border border-line bg-card px-3 text-ink",
                     "placeholder:text-muted focus-visible:border-ink"

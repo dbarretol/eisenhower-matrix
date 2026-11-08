@@ -1,4 +1,4 @@
-import { Task } from '@/types/task';
+import type { ContainerId, Quadrant, Task } from '@/types/task';
 import { QUADRANT_CONFIGS } from '@/lib/quadrants';
 import { MatrixQuadrant } from './MatrixQuadrant';
 import { cn } from '@/lib/utils';
@@ -7,11 +7,11 @@ interface EisenhowerMatrixProps {
     tasks: Task[];
     onToggleComplete: (taskId: string) => void;
     onDelete: (taskId: string) => void;
-    dragOverContainer: Task['quadrant'] | null;
+    dragOverContainer: ContainerId | null;
 }
 
 // Grid placement and the two crossing axes (drawn as borders between zones).
-const ZONE_LAYOUT: Record<string, string> = {
+const ZONE_LAYOUT: Record<Quadrant, string> = {
     urgent_important: 'lg:col-start-2 lg:row-start-2 lg:border-r-2 lg:border-b-2 lg:border-axis',
     important: 'lg:col-start-3 lg:row-start-2 lg:border-b-2 lg:border-axis',
     urgent: 'lg:col-start-2 lg:row-start-3 lg:border-r-2 lg:border-axis',

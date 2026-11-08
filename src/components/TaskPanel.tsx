@@ -1,8 +1,8 @@
-import { Task } from '@/types/task';
+import type { Task } from '@/types/task';
 import { TaskInput } from './TaskInput';
 import { TaskList } from './TaskList';
 import { Search } from 'lucide-react';
-import { useState } from 'react';
+import { useState, type CSSProperties } from 'react';
 import { cn } from '@/lib/utils';
 
 interface TaskPanelProps {
@@ -11,6 +11,8 @@ interface TaskPanelProps {
     onToggleComplete: (taskId: string) => void;
     onDelete: (taskId: string) => void;
     isDragOver: boolean;
+    /** The task being dragged, if any. */
+    activeTaskId?: string;
 }
 
 // The search field only appears once the backlog is long enough to need it.
@@ -21,15 +23,20 @@ export const TaskPanel = ({
     onAddTask,
     onToggleComplete,
     onDelete,
-    isDragOver
+    isDragOver,
+    activeTaskId,
 }: TaskPanelProps) => {
     const [searchTerm, setSearchTerm] = useState('');
+    // A task dragged into the backlog stays listed until the search changes, even if it
+    // doesn't match, so it doesn't vanish (and take keyboard focus with it) on drop.
+    const [pinnedTaskId, setPinnedTaskId] = useState<string>();
+    if (activeTaskId && activeTaskId !== pinnedTaskId) setPinnedTaskId(activeTaskId);
 
     const unassignedTasks = tasks.filter(task => task.quadrant === 'unassigned');
     const showSearch = unassignedTasks.length >= SEARCH_THRESHOLD || searchTerm !== '';
     const query = showSearch ? searchTerm.trim().toLowerCase() : '';
     const filteredTasks = query
-        ? unassignedTasks.filter(task => task.text.toLowerCase().includes(query))
+        ? unassignedTasks.filter(task => task.id === activeTaskId || task.id === pinnedTaskId || task.text.toLowerCase().includes(query))
         : unassignedTasks;
 
     const count = unassignedTasks.length;
@@ -40,7 +47,7 @@ export const TaskPanel = ({
     return (
         <aside
             aria-label="Backlog"
-            style={{ '--zone': 'var(--muted)' } as React.CSSProperties}
+            style={{ '--zone': 'var(--muted)' } as CSSProperties}
             className={cn(
                 "flex flex-col gap-5 border-line px-5 pt-7 pb-5",
                 "lg:sticky lg:top-0 lg:h-screen lg:border-r",
@@ -70,7 +77,10 @@ export const TaskPanel = ({
                         <input
                             type="search"
                             value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
+                            onChange={(e) => {
+                                setSearchTerm(e.target.value);
+                                setPinnedTaskId(undefined);
+                            }}
                             placeholder="Search backlog"
                             aria-label="Search backlog"
                             autoComplete="off"
@@ -81,14 +91,15 @@ export const TaskPanel = ({
 
                 <TaskList
                     containerId="unassigned"
+                    label="Backlog tasks"
                     tasks={filteredTasks}
                     onToggleComplete={onToggleComplete}
                     onDelete={onDelete}
                     emptyMessage={emptyMessage}
                     className={cn(
                         "-m-1 min-h-24 flex-1 overflow-x-hidden overflow-y-auto rounded-card p-1",
-                        "outline-2 -outline-offset-1 outline-transparent transition-[outline-color] duration-150",
-                        isDragOver && "outline-dashed outline-muted/60"
+                        "outline-2 -outline-offset-1 transition-[outline-color] duration-150",
+                        isDragOver ? "outline-dashed outline-muted/60" : "outline-transparent"
                     )}
                 />
             </div>

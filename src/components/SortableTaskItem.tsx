@@ -1,6 +1,6 @@
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { Task } from '@/types/task';
+import type { Task } from '@/types/task';
 import { TaskItem } from './TaskItem';
 
 interface SortableTaskItemProps {
@@ -11,7 +11,7 @@ interface SortableTaskItemProps {
 }
 
 export const SortableTaskItem = ({ task, onToggleComplete, onDelete, className }: SortableTaskItemProps) => {
-    const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+    const { attributes, listeners, setNodeRef, setActivatorNodeRef, transform, transition, isDragging } = useSortable({
         id: task.id,
         transition: { duration: 200, easing: 'cubic-bezier(0.22, 1, 0.36, 1)' },
     });
@@ -25,7 +25,9 @@ export const SortableTaskItem = ({ task, onToggleComplete, onDelete, className }
             isDragging={isDragging}
             className={className}
             style={{ transform: CSS.Translate.toString(transform), transition }}
-            {...attributes}
+            // Keyboard dragging only starts from the handle; pointer and touch work anywhere on the card.
+            handleRef={setActivatorNodeRef}
+            handleProps={attributes}
             {...listeners}
         />
     );

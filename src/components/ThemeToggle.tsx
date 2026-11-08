@@ -20,9 +20,8 @@ export const ThemeToggle = ({ theme, onChange }: ThemeToggleProps) => (
                 aria-pressed={theme === option.value}
                 onClick={() => onChange(option.value)}
                 className={cn(
-                    "rounded-md px-3 py-1 text-[13px] font-bold text-muted transition-colors duration-150",
-                    "hover:text-ink",
-                    theme === option.value && "bg-card text-ink shadow-card"
+                    "rounded-md px-3 py-1 text-[13px] font-bold transition-colors duration-150",
+                    theme === option.value ? "bg-card text-ink shadow-card" : "text-muted hover:text-ink"
                 )}
             >
                 {option.label}

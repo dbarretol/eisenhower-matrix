@@ -1,131 +1,165 @@
 @import "tailwindcss";
-@config "../tailwind.config.ts";
 
-/* Matrix-inspired design system with neon green accents and dark theme */
+@custom-variant dark (&:where(.dark, .dark *));
 
-@layer base {
-  :root {
-    /* Matrix Dark Theme Colors */
-    --background: 200 20% 4%;
-    --foreground: 120 100% 85%;
+/* ---------- Design tokens ---------- */
 
-    --card: 200 15% 8%;
-    --card-foreground: 120 100% 85%;
+:root {
+  color-scheme: light;
 
-    --popover: 200 15% 8%;
-    --popover-foreground: 120 100% 85%;
+  --bg: #E9EEF3;
+  --plane: #F4F7FA;
+  --card: #FFFFFF;
+  --ink: #1E2A40;
+  --muted: #5B6880;
+  --line: #C9D2DD;
+  --axis: #1E2A40;
 
-    /* Matrix Green Primary */
-    --primary: 120 100% 50%;
-    --primary-foreground: 200 20% 4%;
+  --q-do: #C4382F;
+  --q-schedule: #2E5BA6;
+  --q-delegate: #B9852A;
+  --q-drop: #7D8796;
 
-    /* Darker Matrix Tones */
-    --secondary: 200 15% 12%;
-    --secondary-foreground: 120 80% 70%;
+  --danger: #B42318;
+  --zone-tint: 7%;
+  --verb-alpha: 16%;
+  --card-shadow: 0 1px 0 rgb(30 42 64 / 0.08), 0 2px 6px -2px rgb(30 42 64 / 0.12);
+  --lift-shadow: 0 14px 28px -10px rgb(30 42 64 / 0.35);
+}
 
-    --muted: 200 10% 15%;
-    --muted-foreground: 120 30% 60%;
+.dark {
+  color-scheme: dark;
 
-    --accent: 120 70% 25%;
-    --accent-foreground: 120 100% 85%;
+  --bg: #161C27;
+  --plane: #1B2230;
+  --card: #252E3E;
+  --ink: #E4E8EF;
+  --muted: #9AA5B8;
+  --line: #333E51;
+  --axis: #C9D2DD;
 
-    /* Matrix Red for Destructive */
-    --destructive: 0 100% 60%;
-    --destructive-foreground: 0 0% 98%;
+  --q-do: #E0675C;
+  --q-schedule: #6E9BE0;
+  --q-delegate: #D9A94E;
+  --q-drop: #97A1B0;
 
-    --border: 200 15% 20%;
-    --input: 200 15% 12%;
-    --ring: 120 100% 50%;
+  --danger: #F07167;
+  --zone-tint: 9%;
+  --verb-alpha: 20%;
+  --card-shadow: 0 1px 0 rgb(0 0 0 / 0.25), 0 4px 10px -4px rgb(0 0 0 / 0.5);
+  --lift-shadow: 0 16px 32px -10px rgb(0 0 0 / 0.6);
+}
 
-    /* Matrix-specific Design Tokens */
-    --matrix-bg: 200 20% 4%;
-    --matrix-surface: 200 15% 8%;
-    --matrix-border: 200 15% 15%;
-    --matrix-green: 120 100% 50%;
-    --matrix-green-glow: 120 100% 50%;
-    --matrix-green-dim: 120 70% 25%;
+@theme inline {
+  --font-display: "Bricolage Grotesque Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Atkinson Hyperlegible", ui-sans-serif, system-ui, sans-serif;
 
-    /* Gradients */
-    --gradient-matrix: linear-gradient(135deg, hsl(200 20% 4%), hsl(200 15% 8%));
-    --gradient-urgent-important: linear-gradient(135deg, hsl(0 70% 25%), hsl(0 60% 20%));
-    --gradient-important: linear-gradient(135deg, hsl(120 70% 25%), hsl(120 60% 20%));
-    --gradient-urgent: linear-gradient(135deg, hsl(45 70% 25%), hsl(45 60% 20%));
-    --gradient-neither: linear-gradient(135deg, hsl(200 20% 15%), hsl(200 15% 12%));
+  --color-bg: var(--bg);
+  --color-plane: var(--plane);
+  --color-card: var(--card);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-axis: var(--axis);
+  --color-danger: var(--danger);
+  --color-q-do: var(--q-do);
+  --color-q-schedule: var(--q-schedule);
+  --color-q-delegate: var(--q-delegate);
+  --color-q-drop: var(--q-drop);
 
-    /* Shadows and Effects */
-    --shadow-matrix: 0 0 20px hsl(120 100% 50% / 0.3);
-    --shadow-glow: 0 0 40px hsl(120 100% 50% / 0.2);
-    --shadow-task: 0 4px 20px hsl(200 20% 2% / 0.5);
+  /* Names used by the shadcn/ui components */
+  --color-background: var(--card);
+  --color-foreground: var(--ink);
+  --color-input: var(--line);
+  --color-ring: var(--ink);
+  --color-border: var(--line);
+  --color-primary: var(--ink);
+  --color-primary-foreground: var(--bg);
+  --color-muted-foreground: var(--muted);
+  --color-accent: var(--plane);
+  --color-accent-foreground: var(--ink);
 
-    /* Animations */
-    --transition-matrix: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    --transition-glow: box-shadow 0.3s ease;
+  --radius-card: 6px;
+  --shadow-card: var(--card-shadow);
+  --shadow-lift: var(--lift-shadow);
 
-    --radius: 0.5rem;
+  --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
+  --animate-enter: enter 180ms var(--ease-out-soft);
 
-    --sidebar-background: 0 0% 98%;
-
-    --sidebar-foreground: 240 5.3% 26.1%;
-
-    --sidebar-primary: 240 5.9% 10%;
-
-    --sidebar-primary-foreground: 0 0% 98%;
-
-    --sidebar-accent: 240 4.8% 95.9%;
-
-    --sidebar-accent-foreground: 240 5.9% 10%;
-
-    --sidebar-border: 220 13% 91%;
-
-    --sidebar-ring: 217.2 91.2% 59.8%;
-  }
-
-  .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+  @keyframes enter {
+    from { opacity: 0; transform: translateY(4px); }
+    to { opacity: 1; transform: none; }
   }
 }
 
+/* ---------- Base ---------- */
+
 @layer base {
   * {
-    border-color: hsl(var(--border));
+    border-color: var(--line);
+  }
+
+  html,
+  body,
+  #root {
+    height: 100%;
   }
 
   body {
-    background-color: hsl(var(--background));
-    color: hsl(var(--foreground));
+    background-color: var(--bg);
+    color: var(--ink);
+    font-family: var(--font-sans);
+    font-size: 15px;
+    line-height: 1.45;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--ink);
+    outline-offset: 2px;
+  }
+}
+
+/* ---------- Matrix zones ---------- */
+
+@layer components {
+  /* Each zone sets --zone to its quadrant color; children read it. */
+  .zone {
+    background: color-mix(in srgb, var(--zone) var(--zone-tint), var(--plane));
+  }
+
+  .zone-verb {
+    font-family: var(--font-display);
+    font-stretch: 75%;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    line-height: 1;
+    color: color-mix(in srgb, var(--zone) var(--verb-alpha), transparent);
+  }
+
+  /* Slot left behind by the card being dragged */
+  .task-slot {
+    border-style: dashed;
+    border-color: color-mix(in srgb, var(--zone, var(--muted)) 50%, transparent);
+    background: transparent;
+    box-shadow: none;
+  }
+
+  .task-slot > * {
+    visibility: hidden;
+  }
+}
+
+/* Picking up a card: it tilts into its lifted angle */
+@keyframes lift {
+  from { rotate: 0deg; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
   }
 }

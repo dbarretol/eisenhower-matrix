@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { cn } from '@/lib/utils';
 
 interface TaskInputProps {
     onAddTask: (text: string) => void;
@@ -39,5 +40,3 @@ export const TaskInput = ({ onAddTask }: TaskInputProps) => {
         </form>
     );
 };
-
-import { cn } from '@/lib/utils';

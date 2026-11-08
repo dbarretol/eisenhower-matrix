@@ -12,7 +12,8 @@ import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion';
 import { LIFT_ROTATION, dropAnimation } from '@/lib/dnd';
 
 const App = () => {
-    const { tasks, setTasks, addTask, updateTask, deleteTask, moveTask, reorderTask, restoreTask } = useTaskStorage();
+    const { tasks, setTasks, setSavingPaused, addTask, updateTask, deleteTask, moveTask, reorderTask, restoreTask } =
+        useTaskStorage();
     const { theme, setTheme } = useTheme();
     const reducedMotion = usePrefersReducedMotion();
     const { activeTask, dragOverContainer, dndContextProps } = useTaskDragAndDrop({
@@ -20,6 +21,7 @@ const App = () => {
         setTasks,
         moveTask,
         reorderTask,
+        setSavingPaused,
     });
 
     const handleToggleComplete = (taskId: string) => {

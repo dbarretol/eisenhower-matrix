@@ -1,144 +1,68 @@
+# Eisenhower Matrix
 
-=========================
+Sort your tasks by what matters and what can't wait. Add tasks to a backlog, then drag each one into the quadrant it belongs to: **Do**, **Schedule**, **Delegate** or **Drop**.
 
-## 🧠 Project Overview
-Create a desktop-based productivity app in Python that allows users to manually input tasks and visually organize them using an interactive **Eisenhower Matrix**. The app should support task persistence, drag-and-drop prioritization, and allow task deletion only by the user.
+![Eisenhower Matrix in dark mode, with tasks in the backlog and in all four quadrants](docs/screenshot.jpg)
 
----
+## Features
 
-## 🖥️ Application UI Layout
+- **Four quadrants.** Urgent and important tasks go to Do, important ones to Schedule, urgent ones to Delegate, and the rest to Drop.
+- **Drag and drop.** Move tasks between the backlog and the quadrants, and reorder them inside a list. Drag a task back to the backlog to unsort it.
+- **Keyboard and touch.** Every move you can make with a mouse also works with the keyboard and with press-and-hold on touch screens.
+- **Saved automatically.** Tasks stay in your browser between visits. Nothing is sent to a server.
+- **Undo delete.** Deleted a task by mistake? Click **Undo** in the notification.
+- **Light and dark themes.** Follows your system setting until you pick one.
+- **Search.** A search field appears once the backlog has six or more tasks.
 
-### Main Interface Structure
-| Section        | Position | Description |
-|----------------|----------|-------------|
-| **Task Input Panel** | Left side | • A scrollable list of tasks entered manually<br>• Text input field for new task entry<br>• “Add Task” button to submit<br>• Tasks here are initially unassigned |
-| **Eisenhower Matrix View** | Right side | • 2x2 grid representing four quadrants:<br> 1. Urgent & Important<br> 2. Not Urgent but Important<br> 3. Urgent but Not Important<br> 4. Not Urgent & Not Important<br>• Each quadrant displays assigned tasks<br>• Tasks can be dragged from the list or between quadrants |
+## Getting started
 
----
+You need [Node.js](https://nodejs.org/) 20.19 or later.
 
-## ✅ Core Features & Behavior
-
-### Task Management
-- 💬 **Manual Input**: User types a task and clicks “Add Task” to create a new item.
-- 📦 **Unsorted Tasks**: New tasks appear on the left panel until assigned a quadrant.
-- 🖱️ **Drag & Drop**: Tasks can be moved freely to any quadrant or between quadrants.
-- 🗑️ **Delete Control**: Only the user may delete tasks via a delete button/icon next to each task.
-
-### Matrix Quadrants
-- Each quadrant shows:
-  - Title (e.g. “Urgent & Important”)
-  - List of assigned tasks
-- Quadrants automatically update as tasks are moved.
-
-### Task Persistence
-- 🧷 **Data Saving**: Use local file storage or lightweight database (e.g. SQLite or JSON) to keep task data.
-- 💾 **On Close**: When the app is closed, all tasks and their positions in the matrix are saved.
-- ♻️ **On Start**: When reopened, tasks are reloaded into their previous positions.
-
----
-
-## 🛠️ Technical Details & Suggestions
-
-### Tech Stack
-- **Language**: Python 3.x
-- **GUI Framework**: Recommended options:
-  - `Tkinter` (simple, built-in)
-  - `PyQt5` (more powerful, supports drag-and-drop natively)
-- **Data Storage**:
-  - JSON file (easy to manage)
-  - OR SQLite database for more flexibility
-
-### Drag-and-Drop Implementation
-- Use built-in drag support in the GUI framework (e.g., `QDrag` in PyQt5).
-- Tasks should update their quadrant assignment visually and internally.
-
-### Task Object Structure (example)
-```json
-{
-  "task_id": 1,
-  "text": "Finish the budget report",
-  "quadrant": "urgent_important",
-  "created": "2025-07-22T20:36:00",
-  "completed": false
-}
+```bash
+git clone https://github.com/dbarretol/eisenhower-matrix.git
+cd eisenhower-matrix
+npm install
+npm run dev
 ```
 
----
+Then open the address Vite prints in your terminal.
 
-## 🌟 Optional Add-ons
-- ✅ Checkbox to mark task as “completed”
-- 🔍 Search bar for filtering tasks
-- 🎨 Theme customization (dark/light mode)
-- 🔔 Notifications for Quadrant 1 tasks
+| Command           | What it does                                  |
+| ----------------- | --------------------------------------------- |
+| `npm run dev`     | Starts the development server                 |
+| `npm run build`   | Type-checks and builds the app into `dist/`   |
+| `npm run preview` | Serves the production build locally           |
+| `npm run lint`    | Runs ESLint                                   |
 
+## Using the keyboard
 
-================================
-# React + TypeScript + Vite
+1. Press <kbd>Tab</kbd> to focus a task.
+2. Press <kbd>Space</kbd> or <kbd>Enter</kbd> to pick it up.
+3. Use <kbd>↑</kbd> and <kbd>↓</kbd> to move it inside a list, and <kbd>←</kbd> and <kbd>→</kbd> to move it to the list on that side.
+4. Press <kbd>Space</kbd> or <kbd>Enter</kbd> to drop it, or <kbd>Esc</kbd> to put it back where it was.
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Screen readers announce each step.
 
-Currently, two official plugins are available:
+## Your data
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+Tasks are stored in your browser's `localStorage`, so they belong to that browser and that device. Clearing your site data deletes them. If the saved data can't be read, the app starts empty and keeps a copy of the unreadable data under the `eisenhower-matrix-tasks-corrupted-backup` key.
 
-## Expanding the ESLint configuration
+## Built with
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- [React](https://react.dev/) 19 and [TypeScript](https://www.typescriptlang.org/)
+- [Vite](https://vite.dev/)
+- [Tailwind CSS](https://tailwindcss.com/) 4
+- [dnd kit](https://dndkit.com/) for drag and drop
+- [Radix UI](https://www.radix-ui.com/) checkbox and [Sonner](https://sonner.emilkowal.ski/) notifications
+- [Bricolage Grotesque](https://fonts.google.com/specimen/Bricolage+Grotesque) and [Atkinson Hyperlegible](https://www.brailleinstitute.org/freefont/) typefaces
 
-```js
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+## Project structure
 
-      // Remove tseslint.configs.recommended and replace with this
-      ...tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      ...tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      ...tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
-
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```text
+src/
+├── components/     UI components (matrix, quadrants, task list, task card)
+├── hooks/          Task storage and theme
+├── lib/            Quadrant definitions and helpers
+├── pages/          Main page with the drag-and-drop logic
+└── types/          Shared types
 ```

@@ -106,8 +106,8 @@ const Index = () => {
     const reducedMotion = usePrefersReducedMotion();
     const [activeTaskId, setActiveTaskId] = useState<string | null>(null);
     const [dragOverContainer, setDragOverContainer] = useState<Task['quadrant'] | null>(null);
-    // State before the drag started, used to report the move and to undo a cancelled drag.
-    const dragSnapshot = useRef<{ tasks: Task[]; quadrant: Task['quadrant'] } | null>(null);
+    // Tasks as they were before the drag started, restored if the drag is cancelled.
+    const dragSnapshot = useRef<Task[] | null>(null);
 
     const sensors = useSensors(
         // A small distance lets clicks on the checkbox and delete button work normally.
@@ -132,7 +132,7 @@ const Index = () => {
         const task = tasks.find(t => t.id === active.id);
         if (!task) return;
         setActiveTaskId(task.id);
-        dragSnapshot.current = { tasks, quadrant: task.quadrant };
+        dragSnapshot.current = tasks;
     };
 
     // Moves the task into another list while dragging so the lists can make room for it.
@@ -152,7 +152,7 @@ const Index = () => {
         const task = tasks.find(t => t.id === active.id);
 
         if (!over) {
-            if (snapshot) setTasks(snapshot.tasks);
+            if (snapshot) setTasks(snapshot);
             resetDrag();
             return;
         }
@@ -165,7 +165,7 @@ const Index = () => {
     };
 
     const handleDragCancel = () => {
-        if (dragSnapshot.current) setTasks(dragSnapshot.current.tasks);
+        if (dragSnapshot.current) setTasks(dragSnapshot.current);
         resetDrag();
     };
 
@@ -173,6 +173,8 @@ const Index = () => {
     const announcements: Announcements = {
         onDragStart: ({ active }) => `Picked up “${taskText(active.id)}”.`,
         onDragOver: ({ active, over }) => {
+            // Right after pick-up the task is over itself; keep the pick-up message.
+            if (over?.id === active.id) return undefined;
             const to = over ? findContainer(over.id) : undefined;
             return to ? `“${taskText(active.id)}” is over ${CONTAINER_NAMES[to]}.` : undefined;
         },

@@ -137,17 +137,20 @@
     color: color-mix(in srgb, var(--zone) var(--verb-alpha), transparent);
   }
 
-  /* Slot left behind by the card being dragged */
-  .task-slot {
-    border-style: dashed;
-    border-color: color-mix(in srgb, var(--zone, var(--muted)) 50%, transparent);
-    background: transparent;
-    box-shadow: none;
-  }
+}
 
-  .task-slot > * {
-    visibility: hidden;
-  }
+/* Slot left behind by the card being dragged. Unlayered so it wins over the
+   card's utility classes. */
+.task-slot {
+  border-style: dashed;
+  border-width: 1.5px;
+  border-color: color-mix(in srgb, var(--zone, var(--muted)) 50%, transparent);
+  background: transparent;
+  box-shadow: none;
+}
+
+.task-slot > * {
+  visibility: hidden;
 }
 
 /* Picking up a card: it tilts into its lifted angle */

@@ -1,17 +1,17 @@
 import { Task } from '@/types/task';
-import { TaskItem } from './TaskItem';
 import { TaskInput } from './TaskInput';
+import { TaskList } from './TaskList';
 import { Input } from '@/components/ui/input';
 import { Search } from 'lucide-react';
 import { useState } from 'react';
+import { cn } from '@/lib/utils';
 
 interface TaskPanelProps {
     tasks: Task[];
     onAddTask: (text: string) => void;
     onToggleComplete: (taskId: string) => void;
     onDelete: (taskId: string) => void;
-    onDragStart: (e: React.DragEvent, task: Task) => void;
-    draggedTaskId: string | null;
+    isDragOver: boolean;
 }
 
 export const TaskPanel = ({
@@ -19,8 +19,7 @@ export const TaskPanel = ({
     onAddTask,
     onToggleComplete,
     onDelete,
-    onDragStart,
-    draggedTaskId
+    isDragOver
 }: TaskPanelProps) => {
     const [searchTerm, setSearchTerm] = useState('');
 
@@ -30,7 +29,13 @@ export const TaskPanel = ({
     );
 
     return (
-        <div className="w-80 h-full bg-gradient-matrix border-r border-matrix-border flex flex-col">
+        <aside
+            aria-label="Task backlog"
+            className={cn(
+                "w-80 h-screen sticky top-0 bg-gradient-matrix border-r border-matrix-border flex flex-col transition-shadow",
+                isDragOver && "shadow-glow"
+            )}
+        >
             <div className="p-6 border-b border-matrix-border">
                 <h2 className="text-xl font-bold text-matrix-green mb-4 animate-matrix-glow">
                     Task Backlog
@@ -45,38 +50,32 @@ export const TaskPanel = ({
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                         placeholder="Search tasks..."
+                        aria-label="Search backlog tasks"
                         className="pl-10 bg-matrix-surface border-matrix-border focus:border-matrix-green"
                     />
                 </div>
             </div>
 
-            <div className="flex-1 p-6 overflow-y-auto">
-                <div className="space-y-3">
-                    {filteredTasks.length > 0 ? (
-                        filteredTasks.map((task) => (
-                            <TaskItem
-                                key={task.id}
-                                task={task}
-                                onToggleComplete={onToggleComplete}
-                                onDelete={onDelete}
-                                onDragStart={onDragStart}
-                                isDragging={draggedTaskId === task.id}
-                                className="animate-fade-in"
-                            />
-                        ))
-                    ) : (
-                        <div className="text-center text-muted-foreground py-8">
-                            {searchTerm ? 'No tasks match your search.' : 'No tasks yet. Add one above!'}
-                        </div>
+            <div className="flex-1 min-h-0 p-6 overflow-y-auto">
+                <TaskList
+                    containerId="unassigned"
+                    tasks={filteredTasks}
+                    onToggleComplete={onToggleComplete}
+                    onDelete={onDelete}
+                    emptyMessage={searchTerm ? 'No tasks match your search.' : 'No tasks yet. Add one above!'}
+                    itemClassName="animate-fade-in"
+                    className={cn(
+                        "h-full rounded-lg border-2 border-dashed border-transparent transition-colors",
+                        isDragOver && "border-matrix-green/50"
                     )}
-                </div>
+                />
             </div>
 
             <div className="p-6 border-t border-matrix-border">
                 <div className="text-xs text-muted-foreground text-center">
-                    Drag tasks to the matrix →
+                    Drag tasks to the matrix and back
                 </div>
             </div>
-        </div>
+        </aside>
     );
 };

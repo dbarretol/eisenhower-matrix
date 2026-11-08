@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
     DndContext,
     DragOverlay,
@@ -6,10 +6,13 @@ import {
     PointerSensor,
     TouchSensor,
     closestCorners,
+    defaultDropAnimationSideEffects,
     pointerWithin,
     useSensor,
     useSensors,
+    type Announcements,
     type CollisionDetection,
+    type DropAnimation,
     type DragEndEvent,
     type DragOverEvent,
     type DragStartEvent,
@@ -17,11 +20,14 @@ import {
     type UniqueIdentifier,
 } from '@dnd-kit/core';
 import { sortableKeyboardCoordinates } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 import { toast } from 'sonner';
 import { Task } from '@/types/task';
 import { TaskPanel } from '@/components/TaskPanel';
 import { TaskItem } from '@/components/TaskItem';
 import { EisenhowerMatrix } from '@/components/EisenhowerMatrix';
+import { ThemeToggle } from '@/components/ThemeToggle';
+import { useTheme } from '@/hooks/useTheme';
 import { useTaskStorage } from '@/hooks/useTaskStorage';
 import { CONTAINER_IDS, CONTAINER_NAMES } from '@/lib/quadrants';
 
@@ -71,12 +77,37 @@ const keyboardCoordinates: KeyboardCoordinateGetter = (event, args) => {
     return target ? { x: target.left, y: target.top } : undefined;
 };
 
+// The lifted card tilts slightly; on drop it straightens while it settles into place.
+const LIFT_ROTATION = '-1.5deg';
+const dropAnimation: DropAnimation = {
+    duration: 220,
+    easing: 'cubic-bezier(0.22, 1, 0.36, 1)',
+    keyframes: ({ transform }) => [
+        { transform: CSS.Transform.toString(transform.initial), rotate: LIFT_ROTATION },
+        { transform: CSS.Transform.toString(transform.final), rotate: '0deg' },
+    ],
+    sideEffects: defaultDropAnimationSideEffects({ styles: { active: { opacity: '0' } } }),
+};
+
+const usePrefersReducedMotion = () => {
+    const [reduced, setReduced] = useState(() => window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+    useEffect(() => {
+        const query = window.matchMedia('(prefers-reduced-motion: reduce)');
+        const onChange = (e: MediaQueryListEvent) => setReduced(e.matches);
+        query.addEventListener('change', onChange);
+        return () => query.removeEventListener('change', onChange);
+    }, []);
+    return reduced;
+};
+
 const Index = () => {
     const { tasks, setTasks, addTask, updateTask, deleteTask, moveTask, reorderTask } = useTaskStorage();
+    const { theme, setTheme } = useTheme();
+    const reducedMotion = usePrefersReducedMotion();
     const [activeTaskId, setActiveTaskId] = useState<string | null>(null);
     const [dragOverContainer, setDragOverContainer] = useState<Task['quadrant'] | null>(null);
-    // State before the drag started, used to report the move and to undo a cancelled drag.
-    const dragSnapshot = useRef<{ tasks: Task[]; quadrant: Task['quadrant'] } | null>(null);
+    // Tasks as they were before the drag started, restored if the drag is cancelled.
+    const dragSnapshot = useRef<Task[] | null>(null);
 
     const sensors = useSensors(
         // A small distance lets clicks on the checkbox and delete button work normally.
@@ -101,7 +132,7 @@ const Index = () => {
         const task = tasks.find(t => t.id === active.id);
         if (!task) return;
         setActiveTaskId(task.id);
-        dragSnapshot.current = { tasks, quadrant: task.quadrant };
+        dragSnapshot.current = tasks;
     };
 
     // Moves the task into another list while dragging so the lists can make room for it.
@@ -121,7 +152,7 @@ const Index = () => {
         const task = tasks.find(t => t.id === active.id);
 
         if (!over) {
-            if (snapshot) setTasks(snapshot.tasks);
+            if (snapshot) setTasks(snapshot);
             resetDrag();
             return;
         }
@@ -130,41 +161,52 @@ const Index = () => {
             reorderTask(String(active.id), String(over.id));
         }
 
-        if (task && snapshot && task.quadrant !== snapshot.quadrant) {
-            toast("Task moved", {
-                description: `"${task.text}" moved to ${CONTAINER_NAMES[task.quadrant]}`,
-            });
-        }
         resetDrag();
     };
 
     const handleDragCancel = () => {
-        if (dragSnapshot.current) setTasks(dragSnapshot.current.tasks);
+        if (dragSnapshot.current) setTasks(dragSnapshot.current);
         resetDrag();
+    };
+
+    const taskText = (id: UniqueIdentifier) => tasks.find(t => t.id === id)?.text ?? 'Task';
+    const announcements: Announcements = {
+        onDragStart: ({ active }) => `Picked up “${taskText(active.id)}”.`,
+        onDragOver: ({ active, over }) => {
+            // Right after pick-up the task is over itself; keep the pick-up message.
+            if (over?.id === active.id) return undefined;
+            const to = over ? findContainer(over.id) : undefined;
+            return to ? `“${taskText(active.id)}” is over ${CONTAINER_NAMES[to]}.` : undefined;
+        },
+        onDragEnd: ({ active, over }) => {
+            const to = over ? findContainer(over.id) : undefined;
+            return to
+                ? `Dropped “${taskText(active.id)}” in ${CONTAINER_NAMES[to]}.`
+                : `“${taskText(active.id)}” was returned to its place.`;
+        },
+        onDragCancel: ({ active }) => `Move cancelled. “${taskText(active.id)}” was returned to its place.`,
     };
 
     const handleToggleComplete = (taskId: string) => {
         const task = tasks.find(t => t.id === taskId);
-        if (task) {
-            updateTask(taskId, { completed: !task.completed });
-            toast(task.completed ? "Task marked incomplete" : "Task completed!", {
-                description: `"${task.text}" has been ${task.completed ? 'marked as incomplete' : 'completed'}`,
-            });
-        }
+        if (task) updateTask(taskId, { completed: !task.completed });
     };
 
     const handleDeleteTask = (taskId: string) => {
-        const task = tasks.find(t => t.id === taskId);
+        const index = tasks.findIndex(t => t.id === taskId);
+        if (index === -1) return;
+        const task = tasks[index];
         deleteTask(taskId);
-        toast.error("Task deleted", {
-            description: `"${task?.text}" has been removed`,
-        });
-    };
-
-    const handleAddTask = (text: string) => {
-        addTask(text);
-        toast("Task added", {
-            description: `"${text}" added to your backlog`,
+        toast("Task deleted", {
+            description: `“${task.text}”`,
+            action: {
+                label: "Undo",
+                onClick: () => setTasks(prev => {
+                    if (prev.some(t => t.id === task.id)) return prev;
+                    const at = Math.min(index, prev.length);
+                    return [...prev.slice(0, at), task, ...prev.slice(at)];
+                }),
+            },
         });
     };
 
@@ -176,25 +218,35 @@ const Index = () => {
             onDragOver={handleDragOver}
             onDragEnd={handleDragEnd}
             onDragCancel={handleDragCancel}
+            accessibility={{ announcements }}
         >
-            <div className="min-h-screen bg-matrix-bg text-foreground flex">
+            <div className="min-h-full lg:grid lg:grid-cols-[300px_1fr]">
                 <TaskPanel
                     tasks={tasks}
-                    onAddTask={handleAddTask}
+                    onAddTask={addTask}
                     onToggleComplete={handleToggleComplete}
                     onDelete={handleDeleteTask}
                     isDragOver={dragOverContainer === 'unassigned'}
                 />
 
-                <EisenhowerMatrix
-                    tasks={tasks}
-                    onToggleComplete={handleToggleComplete}
-                    onDelete={handleDeleteTask}
-                    dragOverContainer={dragOverContainer}
-                />
+                <main className="flex min-w-0 flex-col px-5 pt-5 pb-6 lg:h-screen lg:px-7 lg:pb-7">
+                    <div className="mb-2.5 flex justify-end">
+                        <ThemeToggle theme={theme} onChange={setTheme} />
+                    </div>
+                    <EisenhowerMatrix
+                        tasks={tasks}
+                        onToggleComplete={handleToggleComplete}
+                        onDelete={handleDeleteTask}
+                        dragOverContainer={dragOverContainer}
+                    />
+                </main>
             </div>
 
-            <DragOverlay>
+            <DragOverlay
+                dropAnimation={reducedMotion ? null : dropAnimation}
+                style={{ rotate: LIFT_ROTATION }}
+                className={reducedMotion ? undefined : 'animate-[lift_150ms_cubic-bezier(0.22,1,0.36,1)]'}
+            >
                 {activeTask ? <TaskItem task={activeTask} isOverlay /> : null}
             </DragOverlay>
         </DndContext>

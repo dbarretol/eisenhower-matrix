@@ -2,20 +2,13 @@ import { Task, QuadrantConfig } from '@/types/task';
 import { TaskList } from './TaskList';
 import { cn } from '@/lib/utils';
 
-// Full class names so Tailwind can detect them at build time.
-const QUADRANT_BACKGROUNDS: Record<QuadrantConfig['id'], string> = {
-    urgent_important: 'bg-gradient-urgent-important',
-    important: 'bg-gradient-important',
-    urgent: 'bg-gradient-urgent',
-    neither: 'bg-gradient-neither',
-};
-
 interface MatrixQuadrantProps {
     config: QuadrantConfig;
     tasks: Task[];
     onToggleComplete: (taskId: string) => void;
     onDelete: (taskId: string) => void;
     isDragOver: boolean;
+    className?: string;
 }
 
 export const MatrixQuadrant = ({
@@ -23,37 +16,45 @@ export const MatrixQuadrant = ({
     tasks,
     onToggleComplete,
     onDelete,
-    isDragOver
+    isDragOver,
+    className,
 }: MatrixQuadrantProps) => {
+    const headingId = `zone-${config.id}`;
+
     return (
         <section
-            aria-label={config.title}
+            aria-labelledby={headingId}
+            style={{ '--zone': `var(${config.colorVar})` } as React.CSSProperties}
             className={cn(
-                "h-full flex flex-col rounded-lg p-4 transition-all duration-300",
-                QUADRANT_BACKGROUNDS[config.id],
-                "border-2 border-matrix-border/50",
-                isDragOver && "border-matrix-green shadow-glow",
-                "backdrop-blur-sm"
+                "zone relative flex min-h-56 flex-col gap-3 overflow-hidden px-5 pt-4 pb-5",
+                "transition-shadow duration-150",
+                isDragOver && "shadow-[inset_0_0_0_2px_var(--zone)]",
+                className
             )}
         >
-            <div className="mb-4">
-                <h3 className="text-lg font-bold text-foreground mb-1">
-                    {config.title}
-                </h3>
-                <p className="text-sm text-muted-foreground">
-                    {config.description}
-                </p>
-            </div>
+            <header className="relative z-10 flex flex-wrap items-baseline gap-x-2.5">
+                <h2 id={headingId} className="font-display text-xl font-bold text-(--zone)">
+                    {config.verb}
+                    <span className="sr-only">: {config.title}</span>
+                </h2>
+                <p className="text-[13px] text-muted">{config.description}</p>
+            </header>
 
             <TaskList
                 containerId={config.id}
                 tasks={tasks}
                 onToggleComplete={onToggleComplete}
                 onDelete={onDelete}
-                emptyMessage="Drop tasks here"
-                itemClassName="animate-scale-in"
-                className="flex-1 overflow-y-auto"
+                emptyMessage={config.emptyMessage}
+                className="relative z-10 min-h-12 max-w-[520px] flex-1 overflow-y-auto p-1 -m-1"
             />
+
+            <span
+                aria-hidden="true"
+                className="zone-verb pointer-events-none absolute right-3.5 -bottom-[0.16em] text-[clamp(64px,10vw,150px)] select-none"
+            >
+                {config.verb}
+            </span>
         </section>
     );
 };

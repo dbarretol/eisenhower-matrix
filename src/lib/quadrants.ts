@@ -1,39 +1,44 @@
 import { QuadrantConfig, Task } from '@/types/task';
 
+// Order matches the classic matrix: top-left, top-right, bottom-left, bottom-right.
 export const QUADRANT_CONFIGS: QuadrantConfig[] = [
     {
         id: 'urgent_important',
-        title: 'Urgent & Important',
-        description: 'Do first - Crisis management',
-        gradient: 'urgent-important',
-        icon: '🔥'
+        verb: 'Do',
+        title: 'Urgent and important',
+        description: 'Handle these today',
+        emptyMessage: 'Drag tasks here that need to happen today.',
+        colorVar: '--q-do',
     },
     {
         id: 'important',
-        title: 'Important, Not Urgent',
-        description: 'Schedule - Prevention & planning',
-        gradient: 'important',
-        icon: '📅'
+        verb: 'Schedule',
+        title: 'Important, not urgent',
+        description: 'Pick a day for these',
+        emptyMessage: 'Drag tasks here that matter but can wait for a set day.',
+        colorVar: '--q-schedule',
     },
     {
         id: 'urgent',
-        title: 'Urgent, Not Important',
-        description: 'Delegate - Interruptions',
-        gradient: 'urgent',
-        icon: '⏰'
+        verb: 'Delegate',
+        title: 'Urgent, not important',
+        description: 'Hand these to someone else',
+        emptyMessage: 'Drag tasks here that someone else can handle.',
+        colorVar: '--q-delegate',
     },
     {
         id: 'neither',
-        title: 'Not Urgent, Not Important',
-        description: 'Eliminate - Time wasters',
-        gradient: 'neither',
-        icon: '🗑️'
-    }
+        verb: 'Drop',
+        title: 'Not urgent, not important',
+        description: 'Let these go',
+        emptyMessage: 'Drag tasks here that you can skip without consequences.',
+        colorVar: '--q-drop',
+    },
 ];
 
 export const CONTAINER_IDS: Task['quadrant'][] = ['unassigned', ...QUADRANT_CONFIGS.map(q => q.id)];
 
 export const CONTAINER_NAMES: Record<Task['quadrant'], string> = {
-    unassigned: 'Task Backlog',
-    ...Object.fromEntries(QUADRANT_CONFIGS.map(q => [q.id, q.title])),
+    unassigned: 'Backlog',
+    ...Object.fromEntries(QUADRANT_CONFIGS.map(q => [q.id, q.verb])),
 } as Record<Task['quadrant'], string>;

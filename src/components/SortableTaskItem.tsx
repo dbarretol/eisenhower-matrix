@@ -13,6 +13,7 @@ interface SortableTaskItemProps {
 export const SortableTaskItem = ({ task, onToggleComplete, onDelete, className }: SortableTaskItemProps) => {
     const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
         id: task.id,
+        transition: { duration: 200, easing: 'cubic-bezier(0.22, 1, 0.36, 1)' },
     });
 
     return (

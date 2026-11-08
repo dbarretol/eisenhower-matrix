@@ -1,7 +1,6 @@
 import { Task } from '@/types/task';
 import { TaskInput } from './TaskInput';
 import { TaskList } from './TaskList';
-import { Input } from '@/components/ui/input';
 import { Search } from 'lucide-react';
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
@@ -14,6 +13,9 @@ interface TaskPanelProps {
     isDragOver: boolean;
 }
 
+// The search field only appears once the backlog is long enough to need it.
+const SEARCH_THRESHOLD = 6;
+
 export const TaskPanel = ({
     tasks,
     onAddTask,
@@ -24,58 +26,76 @@ export const TaskPanel = ({
     const [searchTerm, setSearchTerm] = useState('');
 
     const unassignedTasks = tasks.filter(task => task.quadrant === 'unassigned');
-    const filteredTasks = unassignedTasks.filter(task =>
-        task.text.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    const showSearch = unassignedTasks.length >= SEARCH_THRESHOLD || searchTerm !== '';
+    const query = showSearch ? searchTerm.trim().toLowerCase() : '';
+    const filteredTasks = query
+        ? unassignedTasks.filter(task => task.text.toLowerCase().includes(query))
+        : unassignedTasks;
+
+    const count = unassignedTasks.length;
+    const emptyMessage = query
+        ? `No backlog tasks match “${searchTerm.trim()}”.`
+        : 'Add your first task above. New tasks wait here until you sort them.';
 
     return (
         <aside
-            aria-label="Task backlog"
+            aria-label="Backlog"
+            style={{ '--zone': 'var(--muted)' } as React.CSSProperties}
             className={cn(
-                "w-80 h-screen sticky top-0 bg-gradient-matrix border-r border-matrix-border flex flex-col transition-shadow",
-                isDragOver && "shadow-glow"
+                "flex flex-col gap-5 border-line px-5 pt-7 pb-5",
+                "lg:sticky lg:top-0 lg:h-screen lg:border-r",
+                "border-b lg:border-b-0"
             )}
         >
-            <div className="p-6 border-b border-matrix-border">
-                <h2 className="text-xl font-bold text-matrix-green mb-4 animate-matrix-glow">
-                    Task Backlog
-                </h2>
-                <TaskInput onAddTask={onAddTask} />
+            <div>
+                <h1 className="font-display text-[26px] leading-none font-bold tracking-[-0.01em] [font-stretch:80%]">
+                    Eisenhower Matrix
+                </h1>
+                <p className="mt-1.5 text-[13px] text-muted">Sort tasks by what matters and what can’t wait.</p>
             </div>
 
-            <div className="p-6 border-b border-matrix-border">
-                <div className="relative">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                    <Input
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        placeholder="Search tasks..."
-                        aria-label="Search backlog tasks"
-                        className="pl-10 bg-matrix-surface border-matrix-border focus:border-matrix-green"
-                    />
+            <TaskInput onAddTask={onAddTask} />
+
+            <div className="flex min-h-0 flex-1 flex-col gap-3">
+                <div className="flex items-baseline justify-between">
+                    <h2 className="font-display text-[17px] font-semibold">Backlog</h2>
+                    <span className="text-[13px] text-muted tabular-nums">
+                        {count} {count === 1 ? 'task' : 'tasks'}
+                    </span>
                 </div>
-            </div>
 
-            <div className="flex-1 min-h-0 p-6 overflow-y-auto">
+                {showSearch && (
+                    <div className="relative">
+                        <Search aria-hidden="true" className="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted" />
+                        <input
+                            type="search"
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            placeholder="Search backlog"
+                            aria-label="Search backlog"
+                            autoComplete="off"
+                            className="h-9 w-full rounded-card border border-line bg-plane pr-3 pl-8 text-sm text-ink placeholder:text-muted focus-visible:border-ink"
+                        />
+                    </div>
+                )}
+
                 <TaskList
                     containerId="unassigned"
                     tasks={filteredTasks}
                     onToggleComplete={onToggleComplete}
                     onDelete={onDelete}
-                    emptyMessage={searchTerm ? 'No tasks match your search.' : 'No tasks yet. Add one above!'}
-                    itemClassName="animate-fade-in"
+                    emptyMessage={emptyMessage}
                     className={cn(
-                        "h-full rounded-lg border-2 border-dashed border-transparent transition-colors",
-                        isDragOver && "border-matrix-green/50"
+                        "-m-1 min-h-24 flex-1 overflow-x-hidden overflow-y-auto rounded-card p-1",
+                        "outline-2 -outline-offset-1 outline-transparent transition-[outline-color] duration-150",
+                        isDragOver && "outline-dashed outline-muted/60"
                     )}
                 />
             </div>
 
-            <div className="p-6 border-t border-matrix-border">
-                <div className="text-xs text-muted-foreground text-center">
-                    Drag tasks to the matrix and back
-                </div>
-            </div>
+            <p className="text-[13px] text-muted">
+                Drag a task onto the matrix to sort it. Drag it back here to unsort it.
+            </p>
         </aside>
     );
 };

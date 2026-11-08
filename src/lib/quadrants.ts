@@ -1,7 +1,7 @@
-import { QuadrantConfig, Task } from '@/types/task';
+import type { ContainerId, QuadrantConfig } from '@/types/task';
 
 // Order matches the classic matrix: top-left, top-right, bottom-left, bottom-right.
-export const QUADRANT_CONFIGS: QuadrantConfig[] = [
+export const QUADRANT_CONFIGS: readonly QuadrantConfig[] = [
     {
         id: 'urgent_important',
         verb: 'Do',
@@ -36,9 +36,17 @@ export const QUADRANT_CONFIGS: QuadrantConfig[] = [
     },
 ];
 
-export const CONTAINER_IDS: Task['quadrant'][] = ['unassigned', ...QUADRANT_CONFIGS.map(q => q.id)];
+/** Every list a task can be in, in display order. */
+export const CONTAINER_IDS: readonly ContainerId[] = ['unassigned', ...QUADRANT_CONFIGS.map(q => q.id)];
 
-export const CONTAINER_NAMES: Record<Task['quadrant'], string> = {
+/** Names used in screen reader announcements. */
+export const CONTAINER_NAMES: Record<ContainerId, string> = {
     unassigned: 'Backlog',
-    ...Object.fromEntries(QUADRANT_CONFIGS.map(q => [q.id, q.verb])),
-} as Record<Task['quadrant'], string>;
+    urgent_important: 'Do',
+    important: 'Schedule',
+    urgent: 'Delegate',
+    neither: 'Drop',
+};
+
+export const isContainerId = (value: unknown): value is ContainerId =>
+    CONTAINER_IDS.includes(value as ContainerId);

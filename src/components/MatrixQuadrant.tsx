@@ -43,6 +43,7 @@ export const MatrixQuadrant = ({
 
             <TaskList
                 containerId={config.id}
+                label={`${config.verb} tasks`}
                 tasks={tasks}
                 onToggleComplete={onToggleComplete}
                 onDelete={onDelete}
